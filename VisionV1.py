@@ -3,10 +3,10 @@ from google.api_core.client_options import ClientOptions
 from google.cloud import documentai  # type: ignore
 
 # TODO(developer): Uncomment these variables before running the sample
-# project_id = "YOUR_PROJECT_ID"
-# location = "YOUR_PROCESSOR_LOCATION"  # Format is "us" or "eu"
-# file_path = "/path/to/local/pdf"
-# processor_display_name = "YOUR_PROCESSOR_DISPLAY_NAME" # Must be unique per project, e.g.: "My Processor"
+project_id = "798705758042"
+location = "us"  # Format is "us" or "eu"
+file_path = "HebronSign.pdf"
+processor_display_name = "Sewah Studio Processor" # Must be unique per project, e.g.: "My Processor"
 
 
 def quickstart(
@@ -60,3 +60,5 @@ def quickstart(
     # Read the text recognition output from the processor
     print("The document contains the following text:")
     print(document.text)
+
+quickstart(project_id, location, file_path)
