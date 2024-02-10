@@ -14,7 +14,11 @@ for entry in pdf_directory.iterdir():
 
     # Access the first page (index 0)
     print(f"Current {entry.name}")
-    page = pdf.get_page(int(input("Enter page: ")))
+    userInput = input("Enter page: ")
+    if userInput == 'exit':
+        break
+    page = pdf.get_page(int(userInput))
+
 
     # Render the page to a bitmap
     bitmap = pdfium.PdfPage.render(page, scale = 4)
