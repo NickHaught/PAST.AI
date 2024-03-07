@@ -1,25 +1,13 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
-import DocumentCard from './components/DocumentCard'
+import MainDocumentContainer from './components/MainDocumentContainer'
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
     <>
-    <DocumentCard imageUrl={"./hebronsign.jpg"}/>
-    <DocumentCard imageUrl={"./hebronsign.jpg"}/>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
+    <MainDocumentContainer inputImageUrl='./hebronsign.jpg' outputImageUrl='./hebronsign.jpg'/>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
