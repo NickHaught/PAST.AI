@@ -1,4 +1,4 @@
-# Project Name
+# PAST.AI
 
 Welcome to [Project Name]! This guide will help you set up the project on your local machine, specifically for Windows environments. Please follow the instructions carefully to ensure a smooth setup.
 
