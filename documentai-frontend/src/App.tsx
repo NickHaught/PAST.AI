@@ -1,26 +1,18 @@
-import { useState } from 'react'
-import './App.css'
-import MainDocumentContainer from './components/MainDocumentContainer'
+import { useState } from "react";
+import "./App.css";
+import MainDocumentContainer from "./components/MainDocumentContainer";
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <>
-    <MainDocumentContainer inputImageUrl='./hebronsign.jpg' outputImageUrl='./hebronsign.jpg'/>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <MainDocumentContainer
+        inputImageUrl="./hebronsign.jpg"
+        outputImageUrl="./hebronsign.jpg"
+        className="relative flex justify-center items-center flex-shrink-0"
+      />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
