@@ -1,17 +1,20 @@
+import { ReactNode } from "react";
 
 interface Props {
-    imageUrl: string
+  imageUrl: string;
+  children?: ReactNode;
 }
 
-const DocumentCard = ({imageUrl}: Props) => {
+const DocumentCard = ({ imageUrl }: Props) => {
   return (
-    <div className="max-w-xlg rounded overflow-hidden shadow-lg">
-    <img className="w-full" src={imageUrl} alt="Sunset in the mountains" />
-    <div className="px-6 py-4">
-      <div className="font-bold text-xl mb-2">The Coldest Sunset</div>
+    <div className="max-w-2xl rounded overflow-hidden shadow-lg">
+      <img
+        className="w-full h-auto max-w-full"
+        src={imageUrl}
+        alt="Sunset in the mountains"
+      />
     </div>
-  </div>
-  )
-}
+  );
+};
 
-export default DocumentCard
+export default DocumentCard;
