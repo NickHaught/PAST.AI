@@ -1,7 +1,12 @@
+# urls.py
 
-from django.urls import path
-from . import views
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import PDFFileViewSet
+
+router = DefaultRouter()
+router.register(r"pdfs", PDFFileViewSet)
 
 urlpatterns = [
-    path('hello-world/', views.hello_world, name='hello_world'),
+    path("", include(router.urls)),
 ]
