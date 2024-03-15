@@ -1,9 +1,3 @@
-# Create the virtual environment
-python -m venv .\documentai-backend\project-setup\venv
-
-# Activate the virtual environment
-. .\documentai-backend\project-setup\venv\Scripts\Activate.ps1
-
 # Install necessary libraries
 pip install -q --disable-pip-version-check colorama inquirer
 
@@ -12,23 +6,6 @@ Write-Host "`n------------------------`n"
 
 # Run the Python script
 python .\documentai-backend\project-setup\gitpull-setup\setup_env.py
-
-# Add a separator
-Write-Host "`n------------------------`n"
-
-# Ask the user if they want to install the dependencies
-$install_deps = Read-Host -Prompt "Do you want to install the dependencies in requirements.txt to your local virtual environment? [y/n]"
-if ($install_deps -eq "y") {
-    Write-Host "Installing dependencies, this may take a while..." -NoNewline -ForegroundColor Yellow
-
-    # Run the pip install command
-    pip install -q --disable-pip-version-check -r .\documentai-backend\project-setup\requirements.txt
-
-    Write-Host "`nDependencies installed." -ForegroundColor Green
-}
-else {
-    Write-Host "Skipped installing dependencies." -ForegroundColor Red
-}
 
 # Add a separator
 Write-Host "`n------------------------`n"

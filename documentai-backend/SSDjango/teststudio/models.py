@@ -2,7 +2,7 @@ from django.db import models
 import os
 
 # To delete all objects in all models, run the following management command:
-# python manage.py delete_all
+# docker-compose exec web python /code/documentai-backend/SSDjango/manage.py delete_all
 
 
 class PDFFile(models.Model):

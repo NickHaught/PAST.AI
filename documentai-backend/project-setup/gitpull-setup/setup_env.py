@@ -14,7 +14,6 @@ os.chdir(script_dir)
 PLACEHOLDER = "REPLACE_ME"
 ENV_PATH = "../.env"
 ENV_EXAMPLE_PATH = "./.env.example"
-VENV_PATH = "../venv"
 LOCAL_SETTINGS_EXAMPLE_PATH = "./local_settings.example.py"
 LOCAL_SETTINGS_PATH = "../../SSDjango/SSDjango/local_settings.py"
 
@@ -50,11 +49,6 @@ DATABASE_OPTIONS = {
     },
     "Custom": "custom",
 }
-
-# Create virtual environment if it doesn't exist
-if not os.path.isdir(VENV_PATH):
-    subprocess.run(["python", "-m", "venv", VENV_PATH])
-    print(Fore.GREEN + "Created virtual environment." + Style.RESET_ALL)
 
 # Create .env file if it doesn't exist
 if not os.path.isfile(ENV_PATH):
