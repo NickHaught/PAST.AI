@@ -12,7 +12,7 @@ export default function Sidebar({ children }: SidebarProps) {
   const [expanded, setExpanded] = useState(true)
   
   return (
-      <nav className="h-full flex flex-col bg-primary-gray rounded-xl z-50">
+      <nav className="h-full flex flex-col bg-primary-gray rounded-xl z-50 p-2">
         <div className="p-4 pb-8 flex justify-between items-center ">
           <img
             src="/PASTAI.svg"

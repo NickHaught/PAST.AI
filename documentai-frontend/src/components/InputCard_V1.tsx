@@ -4,7 +4,7 @@ import "react-resizable/css/styles.css";
 import InnerNavbar from "./InnerNavbar";
 import InnerContainer from "./InnerContainer";
 import InputButtonOverlay from "./InputButtonOverlay";
-import ImageTest from "./ImageTest";
+import ImageTest from "./Document";
 import OpenFolderButton from "./OpenFolderButton";
 
 // Your defined interface

@@ -5,7 +5,7 @@ import OutputCard from "./OutputCard";
 import { Resizable, ResizeCallbackData } from "react-resizable";
 
 const MainDocumentContainer = () => {
-  const initialWidth = window.innerWidth * 0.55; 
+  const initialWidth = window.innerWidth * 0.70; 
   const [width, setWidth] = useState(initialWidth);
   const [minConstraints, setMinConstraints] = useState<[number, number]>([
     400, 300,
@@ -17,7 +17,7 @@ const MainDocumentContainer = () => {
 
   useEffect(() => {
     const updateWidthAndConstraints = () => {
-      const dynamicMinWidth = window.innerWidth * 0.40;
+      const dynamicMinWidth = window.innerWidth * 0.30;
       const dynamicMaxWidth = Math.min(
         window.innerWidth * 0.60
       ); 
