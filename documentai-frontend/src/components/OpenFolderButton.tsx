@@ -8,7 +8,7 @@ interface Props {
 const OpenFolderButton = ({ onClick }: Props) => {
   return (
     <Button
-      className="flex items-center bg-gray-500 hover:bg-gray-700 text-white py-1 px-4"
+      className="flex items-center bg-button-gray hover:bg-gray-700 text-white py-1 px-4"
       onClick={onClick}
       position="center"
     >
