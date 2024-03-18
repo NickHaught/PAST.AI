@@ -13,5 +13,8 @@ COPY requirements.txt /code/
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
+# Install pylint
+RUN pip install pylint
+
 # Copy project
 COPY . /code/

@@ -26,10 +26,13 @@ class PDFPage(models.Model):
     )
     page_number = models.IntegerField()
     file = models.FileField(upload_to="pdf_pages/")
+    thumbnail = models.ImageField(upload_to="thumbnails/", null=True, blank=True)
 
     def delete(self, *args, **kwargs):
         if os.path.isfile(self.file.path):
             os.remove(self.file.path)
+        if self.thumbnail and os.path.isfile(self.thumbnail.path):
+            os.remove(self.thumbnail.path)
         super().delete(*args, **kwargs)
 
     def __str__(self):

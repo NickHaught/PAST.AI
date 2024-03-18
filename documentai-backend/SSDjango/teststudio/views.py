@@ -1,8 +1,8 @@
 # views.py
 
 from rest_framework import viewsets
-from .models import PDFFile
-from .serializers import PDFFileSerializer
+from .models import PDFFile, PDFPage
+from .serializers import PDFFileSerializer, PDFPageSerializer
 from .utils import split_pdf
 
 
@@ -17,3 +17,8 @@ class PDFFileViewSet(viewsets.ModelViewSet):
         split_pdf(pdf_file)
 
         return response
+
+
+class PDFPageViewSet(viewsets.ModelViewSet):
+    queryset = PDFPage.objects.all()
+    serializer_class = PDFPageSerializer

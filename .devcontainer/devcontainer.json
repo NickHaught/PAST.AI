@@ -1,0 +1,12 @@
+{
+  "name": "Web Service",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "web",
+  "workspaceFolder": "/code",
+  "settings": {
+    "python.pythonPath": "/usr/local/bin/python",
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true
+  },
+  "extensions": ["ms-python.python"]
+}
