@@ -6,7 +6,7 @@ interface Props {
   className?: string;
 }
 
-const OpenFolderButton =  ({ className}: Props) => {
+const OpenDatabaseButton: React.FC<Props> = ({ className = "" }) => {
   const { setFiles } = useFiles();
   const [isHovered, setIsHovered] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -35,8 +35,8 @@ const OpenFolderButton =  ({ className}: Props) => {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        {isHovered ? <FaFolderOpen className="text-blue transition duration-150 ease-in-out" /> : <FaFolderClosed />}
-        <span>Open Folder</span>
+        {isHovered ? <FaFolderOpen className="text-blue" /> : <FaFolderClosed />}
+        <span>Open Database</span>
       </button>
       <input
         ref={fileInputRef}
@@ -51,7 +51,7 @@ const OpenFolderButton =  ({ className}: Props) => {
   );
 };
 
-export default OpenFolderButton;
+export default OpenDatabaseButton;
 
 
 

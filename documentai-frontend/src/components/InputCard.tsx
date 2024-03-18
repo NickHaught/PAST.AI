@@ -1,13 +1,13 @@
+import { useState, useContext } from "react";
 import "react-resizable/css/styles.css";
 import InnerNavbar from "./InnerNavbar";
 import InnerContainer from "./InnerContainer";
 import ImageTest from "./Document";
 import OpenFolderButton from "./OpenFolderButton";
 import PDFFileList from "./PDFFileList";
-import { useState } from "react";
-import { useContext } from "react";
 import { uploadUrlContext } from "../contexts/Context"; // Import the context
 import { useFiles } from "../contexts/FilesContext";
+import OpenDatabaseButton from "./OpenDatabaseButton";
 
 interface Props {
   width: number;
@@ -17,9 +17,7 @@ const InputCard = ({ width }: Props) => {
   const uploadUrl = useContext(uploadUrlContext);
   const { files } = useFiles();
 
-  const [isVisibility, setIsVisibility] = useState<"document" | "pdfList">(
-    "pdfList"
-  );
+  const [isVisibility, setIsVisibility] = useState<"document" | "pdfList">("pdfList");
 
   return (
     <div
@@ -27,8 +25,13 @@ const InputCard = ({ width }: Props) => {
       style={{ width: `${width}px` }}
     >
       <h1>Input</h1>
-      <InnerNavbar navItems={["Home", "PDF"]} />
-      <OpenFolderButton className="absolute top-20 right-10 z-10" />
+      <div className="flex justify-between items-center">
+  <InnerNavbar navItems={["Home", "PDF"]} />
+  <div className="flex"> {/* This ensures buttons are next to each other */}
+    <OpenFolderButton className="mr-2" /> {/* Right margin for spacing */}
+    <OpenDatabaseButton />
+  </div>
+</div>
       <InnerContainer>
         {isVisibility === "pdfList" ? (
           <PDFFileList
@@ -45,3 +48,4 @@ const InputCard = ({ width }: Props) => {
 };
 
 export default InputCard;
+
