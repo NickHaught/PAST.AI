@@ -3,6 +3,8 @@
 /.vscode
 /PAST AI.code-workspace
 
+cred.json
+
 # Django #
 ############
 *.log

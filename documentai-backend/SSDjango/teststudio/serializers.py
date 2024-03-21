@@ -7,7 +7,7 @@ from .models import PDFFile, PDFPage
 class PDFPageSerializer(serializers.ModelSerializer):
     class Meta:
         model = PDFPage
-        fields = ["page_number", "file", "thumbnail"]
+        fields = ["id", "page_number", "file", "thumbnail"]
 
 
 class PDFFileSerializer(serializers.ModelSerializer):

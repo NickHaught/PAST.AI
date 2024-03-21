@@ -4,7 +4,8 @@ import io
 from PIL import Image
 import fitz  # PyMuPDF
 from django.core.files.base import ContentFile
-from .models import PDFPage
+from ..models import PDFPage
+from .documentAI import process_page
 
 
 class NamedBytesIO(io.BytesIO):
@@ -21,6 +22,8 @@ def split_pdf(pdf_file):
     file_path = pdf_file.file.path
 
     doc = fitz.open(file_path)
+
+    page_ids = []
 
     for page_number, page in enumerate(doc):
         output = io.BytesIO()
@@ -55,3 +58,19 @@ def split_pdf(pdf_file):
         )
 
         pdf_page.save()
+
+        page_ids.append(pdf_page.id)
+
+    return page_ids
+
+
+def process_pages(page_ids: list):
+    """
+    Processes a list of pages using specified parameters.
+
+    Args:
+        page_ids (list): The list of page IDs.
+    """
+
+    for page_id in page_ids:
+        process_page(page_id)

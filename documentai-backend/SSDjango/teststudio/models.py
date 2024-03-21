@@ -37,3 +37,13 @@ class PDFPage(models.Model):
 
     def __str__(self):
         return f"Page {self.page_number} of {self.pdf_file.name}"
+
+
+class Token(models.Model):
+    page = models.ForeignKey(PDFPage, on_delete=models.CASCADE, related_name="tokens")
+    token_id = models.CharField(max_length=255)
+    x1 = models.FloatField()
+    y1 = models.FloatField()
+    x2 = models.FloatField()
+    y2 = models.FloatField()
+    token_info = models.TextField()
