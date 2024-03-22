@@ -6,6 +6,7 @@ import fitz  # PyMuPDF
 from django.core.files.base import ContentFile
 from ..models import PDFPage
 from .documentAI import process_page
+from .filter_tokens import token_filter
 
 
 class NamedBytesIO(io.BytesIO):
@@ -74,3 +75,5 @@ def process_pages(page_ids: list):
 
     for page_id in page_ids:
         process_page(page_id)
+        token_filter(page_id)
+

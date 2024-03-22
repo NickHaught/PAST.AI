@@ -4,6 +4,10 @@ import os
 # To delete all objects in all models, run the following management command:
 # docker-compose exec web python /code/documentai-backend/SSDjango/manage.py delete_all
 
+# To create the database schema, run the following management command:
+# docker-compose exec web python /code/documentai-backend/SSDjango/manage.py makemigrations
+# docker-compose exec web python /code/documentai-backend/SSDjango/manage.py migrate
+
 
 class PDFFile(models.Model):
     name = models.CharField(max_length=255)
@@ -47,3 +51,4 @@ class Token(models.Model):
     x2 = models.FloatField()
     y2 = models.FloatField()
     token_info = models.TextField()
+    filtered = models.BooleanField(default=False)
