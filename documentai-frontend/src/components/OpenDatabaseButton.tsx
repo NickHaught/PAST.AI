@@ -1,57 +1,33 @@
-import React, { useRef, useState } from "react";
-import { FaFolderClosed, FaFolderOpen } from "react-icons/fa6"; // Ensure correct import path
-import { useFiles } from "../contexts/FilesContext";
+
+import { FaDatabase } from "react-icons/fa6"; // Ensure correct import path
 
 interface Props {
   className?: string;
 }
 
-const OpenDatabaseButton: React.FC<Props> = ({ className = "" }) => {
-  const { setFiles } = useFiles();
-  const [isHovered, setIsHovered] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+const OpenFolderButton = ({ className }: Props) => {
+ 
 
-  const handleMouseEnter = () => setIsHovered(true);
-  const handleMouseLeave = () => setIsHovered(false);
+  // Simplified button click handler that just triggers the file input click
+  const handleButtonClick = () => {
+    console.log("Open Database Button Clicked");
+  }
 
-  const handleButtonClick = () => fileInputRef.current?.click();
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files ?? []);
-    const pdfFiles = files.filter(file => file.type === "application/pdf");
-
-    if (pdfFiles.length > 0) {
-      setFiles(pdfFiles); // Update the context with the selected PDF files
-    } else {
-      console.error("No PDF files selected.");
-    }
-  };
 
   return (
     <>
       <button
-        className={`flex items-center space-x-2 bg-hover-gray hover:bg-hover-gray text-sm py-1 px-2 rounded-lg focus:outline-none hover:border-blue transition duration-150 ease-in-out ${className}`}
+        className={`flex items-center bg-hover-gray space-x-2 text-sm py-1 px-2 rounded-lg hover:border-blue focus:outline-none ${className}`}
         onClick={handleButtonClick}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
       >
-        {isHovered ? <FaFolderOpen className="text-blue" /> : <FaFolderClosed />}
-        <span>Open Database</span>
+        <FaDatabase />
       </button>
-      <input
-        ref={fileInputRef}
-        type="file"
-        webkitdirectory="true"
-        accept="application/pdf"
-        multiple
-        style={{ display: "none" }}
-        onChange={handleFileChange}
-      />
     </>
   );
 };
 
-export default OpenDatabaseButton;
+export default OpenFolderButton;
+
 
 
 

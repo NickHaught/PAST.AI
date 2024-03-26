@@ -3,6 +3,7 @@ import "react-resizable/css/styles.css";
 import InputCard from "./InputCard";
 import OutputCard from "./OutputCard";
 import { Resizable, ResizeCallbackData } from "react-resizable";
+import { FaArrowsAltH } from 'react-icons/fa';
 
 const MainDocumentContainer = () => {
   const initialWidth = window.innerWidth * 0.70; 

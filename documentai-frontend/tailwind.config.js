@@ -12,7 +12,8 @@ export default {
       'hover-gray': '#323232',
       'button-gray': '#3F3F3F',
       'blue': '#4681F4',
-      'hover-light-gray': '#353535'
+      'hover-light-gray': '#353535',
+      'primary-button-gray': '#1a1a1a'
     },},
   },
   plugins: [

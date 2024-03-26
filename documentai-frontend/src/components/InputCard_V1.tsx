@@ -3,7 +3,7 @@ import { Resizable } from "react-resizable";
 import "react-resizable/css/styles.css";
 import InnerNavbar from "./InnerNavbar";
 import InnerContainer from "./InnerContainer";
-import InputButtonOverlay from "./InputButtonOverlay";
+import InputButtonOverlay from "./PanelOverlay";
 import ImageTest from "./Document";
 import OpenFolderButton from "./OpenFolderButton";
 

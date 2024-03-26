@@ -5,9 +5,10 @@ import InnerContainer from "./InnerContainer";
 import ImageTest from "./Document";
 import OpenFolderButton from "./OpenFolderButton";
 import PDFFileList from "./PDFFileList";
-import { uploadUrlContext } from "../contexts/Context"; // Import the context
+import { uploadUrlContext } from "../contexts/Context";
 import { useFiles } from "../contexts/FilesContext";
 import OpenDatabaseButton from "./OpenDatabaseButton";
+import PanelOverlay from "./PanelOverlay";
 
 interface Props {
   width: number;
@@ -43,6 +44,7 @@ const InputCard = ({ width }: Props) => {
           <ImageTest imagePath={"/hebronsign.jpg"} />
         )}
       </InnerContainer>
+      <PanelOverlay />
     </div>
   );
 };
