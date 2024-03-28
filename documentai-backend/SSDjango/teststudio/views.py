@@ -3,9 +3,10 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from .models import PDFFile, PDFPage
+from .models import PDFFile, PDFPage, GPTResponse
 from .serializers import PDFFileSerializer, PDFPageSerializer
-from .utils.utils import split_pdf, process_pages
+from .utils.utils import split_pdf, process_pages_util
+
 
 
 class PDFFileViewSet(viewsets.ModelViewSet):
@@ -30,9 +31,18 @@ class PDFPageViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["post"])
     def process_pages(self, request):
         page_ids = request.data.get("page_ids", [])
-        process_pages(page_ids)
+        process_pages_util(page_ids)
+
+        responses = []
+        for page_id in page_ids:
+            gpt_response = GPTResponse.objects.get(page_id=page_id)
+            responses.append({
+                'page_id': page_id,
+                'json_output': gpt_response.json_response,
+                'cost': gpt_response.cost
+            })
 
         return Response(
-            {"status": "Processing complete", "processed_pages": page_ids},
+            {"status": "Processing complete", "processed_pages": responses},
             status=status.HTTP_200_OK,
         )

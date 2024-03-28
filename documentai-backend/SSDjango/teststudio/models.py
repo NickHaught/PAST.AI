@@ -59,3 +59,17 @@ class Token(models.Model):
 
     def get_token_info(self):
         return json.loads(self.token_info)
+    
+
+class GPTResponse(models.Model):
+    page = models.ForeignKey(PDFPage, on_delete=models.CASCADE, related_name="gpt_responses")
+    _json_response = models.TextField(db_column='json_response')
+    cost = models.FloatField()
+
+    @property
+    def json_response(self):
+        return json.loads(self._json_response)
+
+    @json_response.setter
+    def json_response(self, value):
+        self._json_response = json.dumps(value)

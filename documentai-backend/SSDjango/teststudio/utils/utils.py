@@ -7,7 +7,7 @@ from django.core.files.base import ContentFile
 from ..models import PDFPage
 from .documentAI import process_page
 from .filter_tokens import token_filter
-from .gpt import temp_name
+from .gpt import gpt_token_processing
 
 
 class NamedBytesIO(io.BytesIO):
@@ -66,7 +66,7 @@ def split_pdf(pdf_file):
     return page_ids
 
 
-def process_pages(page_ids: list):
+def process_pages_util(page_ids: list):
     """
     Processes a list of pages using specified parameters.
 
@@ -77,5 +77,5 @@ def process_pages(page_ids: list):
     for page_id in page_ids:
         process_page(page_id)
         token_filter(page_id)
-        temp_name(page_id)
+        gpt_token_processing(page_id)
 
