@@ -140,15 +140,16 @@ def process_tokens(pdf_page, document, page_width, page_height):
             token_info = token_info_to_dict(token, document_text)
 
             # Create a Token instance
-            Token.objects.create(
+            token = Token.objects.create(
                 page=pdf_page,
                 token_id=token_id,
                 x1=x1,
                 y1=y1,
                 x2=x2,
                 y2=y2,
-                token_info=token_info,
             )
+            token.set_token_info(token_info)
+            token.save()
 
 
 def get_page_dimensions(input_pdf_path):

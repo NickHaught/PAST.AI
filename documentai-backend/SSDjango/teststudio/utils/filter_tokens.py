@@ -5,7 +5,7 @@ def token_filter(page_id: int):
 
     settings = {
         "color_filter" : True,
-        "color_similarity_threshold": 50,
+        "color_similarity_threshold": 0.6,
         "handwritten_filter" : True,
         "unicode_filter" : True,
         "confidence_filter" : 0.7,
@@ -21,7 +21,7 @@ def token_filter(page_id: int):
 
     avg_color = average_color(tokens)
     for token in tokens:
-        token_info = token.token_info
+        token_info = token.get_token_info()
 
         # Update the color for the current token
         color = token_info["style_info"]["text_color"]
@@ -45,23 +45,16 @@ def token_filter(page_id: int):
             token.save()
 
         # Check if the token's confidence is less than the threshold
-        if settings["confidence_filter"] and token_info["confidence"] < settings["confidence_filter"]:
+        if settings["confidence_filter"] and token_info["layout"]["confidence"] < settings["confidence_filter"]:
             token.filtered = True
             token.save()
-    
-    for token in tokens:
-        filtered = token.filtered
-
-        if filtered == False:
-            print(token.token_info["text"])
-
 
 
 def average_color(tokens):
     colors = []
     for token in tokens:
-        print(token.token_info)
-        color = token.token_info["style_info"]["text_color"]
+        token_info = token.get_token_info()  # Change this line
+        color = token_info["style_info"]["text_color"]
         colors.append([color["red"], color["green"], color["blue"]])
     average_color = np.mean(colors, axis=0)
 

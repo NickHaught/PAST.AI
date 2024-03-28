@@ -1,5 +1,6 @@
 from django.db import models
 import os
+import json
 
 # To delete all objects in all models, run the following management command:
 # docker-compose exec web python /code/documentai-backend/SSDjango/manage.py delete_all
@@ -52,3 +53,9 @@ class Token(models.Model):
     y2 = models.FloatField()
     token_info = models.TextField()
     filtered = models.BooleanField(default=False)
+
+    def set_token_info(self, data):
+        self.token_info = json.dumps(data)
+
+    def get_token_info(self):
+        return json.loads(self.token_info)
