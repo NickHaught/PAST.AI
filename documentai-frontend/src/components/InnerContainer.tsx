@@ -7,8 +7,8 @@ interface Props {
 
 const InnerContainer = ({ children }: Props) => {
   return (
-    <div className="w-full h-full rounded-xl overflow-hidden bg-hover-gray">
-      <div className=" bg-hover-gray">{children}</div>
+    <div className="w-full h-full rounded-xl overflow-hidden bg-light-gray">
+      <div className=" bg-light-gray">{children}</div>
     </div>
   );
 };

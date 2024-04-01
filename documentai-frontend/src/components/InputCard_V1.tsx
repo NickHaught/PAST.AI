@@ -31,7 +31,7 @@ const InputCard = () => {
 
   return (
     <Resizable
-      className="flex flex-col bg-primary-gray rounded-xl p-6"
+      className="flex flex-col bg-gray rounded-xl p-6"
       width={width}
       height={height}
       onResize={handleResize}

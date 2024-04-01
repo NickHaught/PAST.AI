@@ -5,7 +5,7 @@ import ImageTest from "./Document";
 
 const OutputCard = () => {
   return (
-    <div className="flex flex-col bg-primary-gray rounded-xl p-6">
+    <div className="flex flex-col bg-gray rounded-xl p-6">
       <h1>Output</h1>
       <InnerNavbar navItems={["PDF", "Editor"]} />
 

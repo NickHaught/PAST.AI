@@ -35,7 +35,7 @@ body {
 }
 
 h1 {
-  @apply text-2xl leading-tight text-left pb-6 font-bold;
+  @apply text-2xl leading-tight text-left pb-6 font-bold text-off-white;
 }
 
 button {

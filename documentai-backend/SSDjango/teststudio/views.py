@@ -9,7 +9,7 @@ def hello_world(request):
 # Create your views here.
 
 @api_view(['POST'])
-def upload_pdf(request):
+def upload_pdfs(request):
     if request.method == 'POST':
         serializer = PDFSerializer(data=request.data)
         
@@ -20,3 +20,19 @@ def upload_pdf(request):
             return Response(serializer.errors, status=400)
     
     return Response({"detail": "Invalid request"}, status=400)
+
+@api_view(['POST'])
+def test_upload(request):
+    if request.method == 'POST':
+        print(request.FILES)
+        pdf_files = request.FILES.getlist('files')
+        print(pdf_files)
+        pdf_names = [pdf_file.name for pdf_file in pdf_files]
+        print("PDF Names:", pdf_names)
+        return Response({"pdfNames": pdf_names}, status=200)
+
+    return Response({"detail": "Invalid request"}, status=400)
+
+@api_view(['GET'])
+def test_pdf(request):
+    return Response({"detail": "Test PDF endpoint hit"}, status=200)

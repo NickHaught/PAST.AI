@@ -7,6 +7,7 @@
     color: #fff;
     cursor: pointer;
     position: relative;
+    background: #1a1a1a;
     z-index: 0;
     border-radius: 8px;
 }
@@ -42,7 +43,7 @@
     background: #1a1a1a;
     left: 0;
     top: 0;
-    border-radius: 10px;
+    border-radius:10px;
 }
 
 @keyframes glowing {

@@ -6,14 +6,15 @@ export default {
   ],
   theme: {
     extend: {colors: {
-      'text-primary': '#FFFFFF',
-      'primary-gray': '#282828',
+      'white': '#FAF9F6',
+      'off-white': '#d9d9d9',
+      'gray': '#282828',
       'secondary-gray': '#1F1F21',
-      'hover-gray': '#323232',
-      'button-gray': '#3F3F3F',
+      'light-gray': '#323232',
+      'dark-gray': '#3F3F3F',
       'blue': '#4681F4',
       'hover-light-gray': '#353535',
-      'primary-button-gray': '#1a1a1a'
+      'dark-dark-gray': '#1a1a1a'
     },},
   },
   plugins: [
