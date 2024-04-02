@@ -11,6 +11,22 @@ from .gpt import gpt_token_processing
 
 
 class NamedBytesIO(io.BytesIO):
+    """
+    A subclass of `io.BytesIO` that allows specifying a name for the stream.
+
+    Args:
+        buffer (bytes-like object): The initial buffer value.
+        name (str, optional): The name of the stream. Defaults to None.
+
+    Attributes:
+        name (str): The name of the stream.
+
+    Example:
+        >>> stream = NamedBytesIO(b'Hello, World!', name='example.txt')
+        >>> print(stream.name)
+        example.txt
+    """
+
     def __init__(self, buffer, name=None):
         self._name = name
         super().__init__(buffer)
@@ -21,6 +37,15 @@ class NamedBytesIO(io.BytesIO):
 
 
 def split_pdf(pdf_file):
+    """
+    Splits a PDF file into individual pages and saves each page as a separate PDF file.
+    
+    Args:
+        pdf_file (File): The PDF file to be split.
+        
+    Returns:
+        list: A list of IDs of the saved PDF pages.
+    """
     file_path = pdf_file.file.path
 
     doc = fitz.open(file_path)
