@@ -1,8 +1,11 @@
 # utils.py
 
 import io
+import os
 from PIL import Image
 import fitz  # PyMuPDF
+import pypdfium2 as pdfium
+from pathlib import Path
 from django.core.files.base import ContentFile
 from ..models import PDFPage
 from .documentAI import process_page
@@ -103,4 +106,42 @@ def process_pages_util(page_ids: list):
         process_page(page_id)
         token_filter(page_id)
         gpt_token_processing(page_id)
+
+
+
+def render_pdf_to_images(page_ids: list):
+    image_urls = []
+    for page_id in page_ids:
+        page = PDFPage.objects.get(id=page_id)
+        pdf = pdfium.PdfDocument(page.file.path)
+
+        # Render the page to a bitmap
+        bitmap = pdfium.PdfPage.render(pdf.get_page(0), scale = 4)
+
+        # Convert the bitmap to a PIL image
+        pil_image = Image.frombytes("RGB", (bitmap.width, bitmap.height), bitmap.buffer)
+
+        # Save the PIL image to a BytesIO object
+        image_io = io.BytesIO()
+        pil_image.save(image_io, format='JPEG')
+
+        # Create a Django ContentFile from the BytesIO object
+        image_content_file = ContentFile(image_io.getvalue())
+
+        # Generate a filename
+        filename = f'{page.pdf_file.name}_page_{page.page_number}.jpg'
+
+        # Save the image to the high_res_image field
+        page.high_res_image.save(filename, image_content_file)
+
+        # Save the changes to the page object
+        page.save()
+
+        # Close the PDF document
+        pdf.close()
+
+        image_urls.append(page.high_res_image.url)
+
+    return image_urls
+
 

@@ -32,6 +32,7 @@ class PDFPage(models.Model):
     page_number = models.IntegerField()
     file = models.FileField(upload_to="pdf_pages/")
     thumbnail = models.ImageField(upload_to="thumbnails/", null=True, blank=True)
+    high_res_image = models.ImageField(upload_to='high_res_images/', null=True, blank=True)
 
     def delete(self, *args, **kwargs):
         if os.path.isfile(self.file.path):
