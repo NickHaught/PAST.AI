@@ -11,6 +11,7 @@ __pycache__/
 local_settings.py
 db.sqlite3
 media
+cred.json
 
 # If you are using PostgreSQL
 *.env
