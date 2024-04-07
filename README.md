@@ -1,6 +1,6 @@
 # PAST.AI: Preservation and Scanning Technology with Artificial Intelligence
 
-Welcome to [Project Name]! This guide will help you set up the project on your local machine, specifically for Windows environments. Please follow the instructions carefully to ensure a smooth setup.
+Welcome to PAST.AI, a computer science capstone for Marietta College! This guide will help you set up the project on your local machine, specifically for Windows environments. Please follow the instructions carefully to ensure a smooth setup.
 
 ## Prerequisites
 
