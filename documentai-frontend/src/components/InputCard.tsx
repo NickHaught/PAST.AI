@@ -7,6 +7,7 @@ import OpenDatabaseButton from "./OpenDatabaseButton";
 import PanelOverlay from "./PanelOverlay";
 import PDFList from "./PDFList";
 import PDFViewer from "./PDFViewer";
+import StatusMessage from "./StatusMessage";
 
 interface Props {
   width: number;
@@ -18,9 +19,16 @@ const InputCard = ({ width }: Props) => {
   const [view, setView] = useState<"list" | "viewer" | null>("list");
   const [fileNames, setFileNames] = useState<filename[]>([]);
   const [selectedPDF, setSelectedPDF] = useState<filename | null>(null);
+  const [statusMessage, setStatusMessage] = useState<{
+    type: "success" | "warning" | "error";
+    message: string;
+  } | null>(null); // State for status message
+  const [loading, setLoading] = useState<boolean>(false);
+
 
   const handleUploadComplete = (uploadedFileNames: string[]) => {
     setFileNames(uploadedFileNames);
+    setLoading(false);
     setView("list");
   };
 
@@ -29,12 +37,25 @@ const InputCard = ({ width }: Props) => {
     setView("viewer"); // Switch to the PDF viewer view
   };
 
+  const clearStatusMessage = () => {
+    setStatusMessage(null);
+  };
+
   return (
     <div
       className="flex flex-col bg-gray rounded-xl p-6"
       style={{ width: `${width}px` }}
     >
-      <h1>Input</h1>
+      <div className="flex justify-between items-center">
+        <h1>Input</h1>
+        {statusMessage && (
+          <StatusMessage
+            status={statusMessage.type}
+            message={statusMessage.message}
+            onClose={clearStatusMessage}
+          />
+        )}
+      </div>
       <div className="flex justify-between items-center">
         <InnerNavbar
           navItems={["Home", "PDF"]}
@@ -44,11 +65,15 @@ const InputCard = ({ width }: Props) => {
         />
         <div className="flex">
           {" "}
-          <OpenFolderButton onUploadComplete={handleUploadComplete} />
+          <OpenFolderButton
+            onUploadComplete={handleUploadComplete}
+            setStatusMessage={setStatusMessage}
+            setLoading={setLoading}
+          />
           <OpenDatabaseButton />
         </div>
       </div>
-      <InnerContainer>
+      <InnerContainer loading={loading}>
         {view === "list" ? (
           <PDFList files={fileNames} onSelectPDF={handlePDFSelect} />
         ) : selectedPDF ? (
