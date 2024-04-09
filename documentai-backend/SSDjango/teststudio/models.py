@@ -29,6 +29,7 @@ class PDFPage(models.Model):
     pdf_file = models.ForeignKey(
         PDFFile, on_delete=models.CASCADE, related_name="pages"
     )
+    scanned = models.BooleanField(default=False)
     page_number = models.IntegerField()
     file = models.FileField(upload_to="pdf_pages/")
     thumbnail = models.ImageField(upload_to="thumbnails/", null=True, blank=True)

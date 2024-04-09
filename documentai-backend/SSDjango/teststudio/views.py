@@ -57,6 +57,7 @@ class PDFFileViewSet(viewsets.ModelViewSet):
                 "file": request.build_absolute_uri(page.file.url),
                 "thumbnail": request.build_absolute_uri(page.thumbnail.url) if page.thumbnail else None,
                 "high_res_image": request.build_absolute_uri(image_url),
+                "scanned": page.scanned,
             }
             for page, image_url in zip(pages, image_urls)
         ]
@@ -87,11 +88,16 @@ class PDFPageViewSet(viewsets.ModelViewSet):
 
         responses = []
         for page_id in page_ids:
+            pdf_page = PDFPage.objects.get(id=page_id)
+            pdf_page.scanned = True
+            pdf_page.save()
+
             gpt_response = GPTResponse.objects.get(page_id=page_id)
             responses.append({
                 'page_id': page_id,
                 'json_output': gpt_response.json_response,
-                'cost': gpt_response.cost
+                'cost': gpt_response.cost,
+                'scanned': pdf_page.scanned
             })
 
         return Response(
