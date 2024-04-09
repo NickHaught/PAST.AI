@@ -1,12 +1,10 @@
-import React, { useRef, useState, ChangeEvent } from "react";
+import React, { useRef, ChangeEvent } from "react";
 import { FaArrowAltCircleUp } from "react-icons/fa";
-import { useFiles } from "../contexts/FilesContext";
 import { uploadFiles } from "../services/apiServices";
-import { prepareFormData } from "../services/fileUtils";
-import axios from "axios";
+import { FileData } from "../services/fileTypes";
 
 interface Props {
-  onUploadComplete: (fileNames: string[]) => void;
+  onUploadComplete: (uploadedFiles: FileData[]) => void;
   setStatusMessage: (
     statusMessage: {
       type: "success" | "warning" | "error";
@@ -20,8 +18,11 @@ interface CustomInputAttributes extends React.HTMLProps<HTMLInputElement> {
   webkitdirectory?: string;
 }
 
-const OpenFolderButton = ({ onUploadComplete, setStatusMessage, setLoading }: Props) => {
-  const { setFiles } = useFiles();
+const OpenFolderButton = ({
+  onUploadComplete,
+  setStatusMessage,
+  setLoading,
+}: Props) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -30,67 +31,28 @@ const OpenFolderButton = ({ onUploadComplete, setStatusMessage, setLoading }: Pr
     }
 
     setLoading(true);
-
     const allFiles = Array.from(event.target.files);
-    const pdfFiles = allFiles.filter((file) => file.type === "application/pdf");
-
-    if (pdfFiles.length === 0) {
-      setStatusMessage({
-        type: "error",
-        message: "No PDF files found in the selected directory.",
-      });
-      return;
-    }
-
-    const formData = prepareFormData(pdfFiles);
+    const filePaths = allFiles.map(
+      (file) => file.webkitRelativePath || file.name
+    );
 
     try {
-      const response = await uploadFiles(formData);
-      console.log("Files uploaded successfully");
-
-      // Only set success or warning messages if files were actually processed
-
-      if (pdfFiles.length !== allFiles.length) {
-        setStatusMessage({
-          type: "warning",
-          message: "Non-PDF files excluded. Only PDFs uploaded.",
-        });
-      } else {
-        setStatusMessage({
-          type: "success",
-          message: "PDF files uploaded successfully.",
-        });
-      }
-      onUploadComplete(response.data.pdfNames);
-    } catch (error: unknown) {
-      console.error("Error uploading files:", error);
-
-      // Check if error is an instance of an Error object and has a response property
-      if (axios.isAxiosError(error)) {
-        // Now we can safely access error.response, error.message, etc.
-        if (!error.response) {
-          setStatusMessage({
-            type: "error",
-            message: "No connection to the server.",
-          });
-        } else if (error.response.status === 500) {
-          setStatusMessage({
-            type: "error",
-            message: "Server error during upload",
-          });
-        } else {
-          setStatusMessage({
-            type: "error",
-            message: "Axios error during upload",
-          });
-        }
-      } else {
-        // Handle cases where the error is not an AxiosError (e.g., a programming error)
-        setStatusMessage({
-          type: "error",
-          message: "Unexpected error occurred.",
-        });
-      }
+      const files = await uploadFiles(filePaths);
+      console.log("File paths uploaded successfully");
+      onUploadComplete(files);
+      setStatusMessage({
+        type: "success",
+        message: "File paths uploaded successfully.",
+      });
+    } catch (error) {
+      console.error("Error uploading file paths:", error);
+      setStatusMessage({
+        type: "error",
+        message: "Error uploading file paths",
+      });
+    } finally {
+      setLoading(false);
+      event.target.value = ""; // Reset the input to allow re-upload of the same files
     }
   };
 

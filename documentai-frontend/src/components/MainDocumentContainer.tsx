@@ -4,6 +4,7 @@ import InputCard from "./InputCard";
 import OutputCard from "./OutputCard";
 import { Resizable, ResizeCallbackData } from "react-resizable";
 import { FaArrowsAltH } from 'react-icons/fa';
+import { PDFDetail } from "../services/fileTypes";
 
 const MainDocumentContainer = () => {
   const initialWidth = window.innerWidth * 0.70; 
@@ -15,6 +16,11 @@ const MainDocumentContainer = () => {
     window.innerWidth * 0.60,
     300,
   ]); 
+  const [selectedPDF, setSelectedPDF] = useState<PDFDetail | null>(null);
+
+  const clearSelectedPDF = () => {
+    setSelectedPDF(null);
+  };
 
   useEffect(() => {
     const updateWidthAndConstraints = () => {
@@ -53,13 +59,13 @@ const MainDocumentContainer = () => {
         minConstraints={minConstraints}
         maxConstraints={maxConstraints}
       >
-        <div className="flex mr-4">
-          <InputCard width={width} />
+        <div className="mr-4">
+          <InputCard width={width} onPDFSelect={setSelectedPDF} clearSelectedPDF={clearSelectedPDF}/>
         </div>
       </Resizable>
 
       <div className="flex">
-        <OutputCard />
+        <OutputCard selectedPDF={selectedPDF}/>
       </div>
     </div>
   );

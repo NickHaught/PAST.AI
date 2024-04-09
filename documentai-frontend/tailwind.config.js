@@ -11,6 +11,8 @@ export default {
       'gray': '#282828',
       'secondary-gray': '#1F1F21',
       'light-gray': '#323232',
+      'lighter-gray': '#393939',
+      'lightest-gray': '#474747',
       'dark-gray': '#3F3F3F',
       'blue': '#4681F4',
       'hover-light-gray': '#353535',

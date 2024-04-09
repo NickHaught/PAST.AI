@@ -8,33 +8,33 @@ import PanelOverlay from "./PanelOverlay";
 import PDFList from "./PDFList";
 import PDFViewer from "./PDFViewer";
 import StatusMessage from "./StatusMessage";
+import { FileData, PDFDetail } from "../services/fileTypes";
 
 interface Props {
   width: number;
+  onPDFSelect: (pdfDetail: PDFDetail) => void;
+  clearSelectedPDF: () => void;
 }
 
-type filename = string;
-
-const InputCard = ({ width }: Props) => {
-  const [view, setView] = useState<"list" | "viewer" | null>("list");
-  const [fileNames, setFileNames] = useState<filename[]>([]);
-  const [selectedPDF, setSelectedPDF] = useState<filename | null>(null);
+const InputCard = ({ width, onPDFSelect, clearSelectedPDF }: Props) => {
+  const [view, setView] = useState<"list" | "viewer" | null>(null);
+  const [files, setFiles] = useState<FileData[]>([]);
+  const [selectedPDF, setSelectedPDF] = useState<FileData | null>(null);
   const [statusMessage, setStatusMessage] = useState<{
     type: "success" | "warning" | "error";
     message: string;
-  } | null>(null); // State for status message
+  } | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-
-  const handleUploadComplete = (uploadedFileNames: string[]) => {
-    setFileNames(uploadedFileNames);
+  const handleUploadComplete = (uploadedFiles: FileData[]) => {
+    setFiles(uploadedFiles);
     setLoading(false);
     setView("list");
   };
 
-  const handlePDFSelect = (pdf: filename) => {
+  const handlePDFSelect = (pdf: FileData) => {
     setSelectedPDF(pdf);
-    setView("viewer"); // Switch to the PDF viewer view
+    setView("viewer");
   };
 
   const clearStatusMessage = () => {
@@ -43,7 +43,7 @@ const InputCard = ({ width }: Props) => {
 
   return (
     <div
-      className="flex flex-col bg-gray rounded-xl p-6"
+      className="relative flex flex-col bg-gray rounded-xl p-6"
       style={{ width: `${width}px` }}
     >
       <div className="flex justify-between items-center">
@@ -59,12 +59,14 @@ const InputCard = ({ width }: Props) => {
       <div className="flex justify-between items-center">
         <InnerNavbar
           navItems={["Home", "PDF"]}
-          onHomeClick={() => setView("list")}
+          onHomeClick={() => {
+            setView("list");
+            clearSelectedPDF();
+          }}
           onPDFClick={() => selectedPDF && setView("viewer")}
           activeView={view}
         />
         <div className="flex">
-          {" "}
           <OpenFolderButton
             onUploadComplete={handleUploadComplete}
             setStatusMessage={setStatusMessage}
@@ -75,14 +77,15 @@ const InputCard = ({ width }: Props) => {
       </div>
       <InnerContainer loading={loading}>
         {view === "list" ? (
-          <PDFList files={fileNames} onSelectPDF={handlePDFSelect} />
+          <PDFList files={files} onSelectPDF={handlePDFSelect} />
         ) : selectedPDF ? (
-          <PDFViewer pdf={selectedPDF} />
+          <PDFViewer file={selectedPDF} onPDFSelect={onPDFSelect} />
         ) : null}
       </InnerContainer>
-      <PanelOverlay />
+      <PanelOverlay className="absolute bottom-[40px] left-1/2 transform -translate-x-1/2" />
     </div>
   );
 };
 
 export default InputCard;
+

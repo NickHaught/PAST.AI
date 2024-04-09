@@ -1,13 +1,13 @@
-import { FaDatabase } from "react-icons/fa"; // Ensure correct import path
 import { test_pdf } from "../services/apiServices"; // Correct the path as necessary
+import { FaRegSave } from "react-icons/fa";
 
 interface Props {
   className?: string;
 }
 
-const OpenDatabaseButton = ({ className }: Props) => {
+const SaveButton = ({ className }: Props) => {
   const handleButtonClick = async () => {
-    console.log("Open Database Button Clicked");
+    console.log("Save Button Clicked");
     try {
       const response = await test_pdf();
       console.log("Test PDF response:", response);
@@ -19,13 +19,13 @@ const OpenDatabaseButton = ({ className }: Props) => {
   return (
     <>
       <button
-        className={`text-white flex items-center bg-light-gray space-x-2 text-sm py-1 px-2 rounded-lg hover:border-blue focus:outline-none ${className}`}
+        className={`text-white flex items-center bg-light-gray space-x-2 text-lg py-1 px-2 rounded-lg hover:border-blue focus:outline-none ${className}`}
         onClick={handleButtonClick}
       >
-        <FaDatabase className="text-blue"/>
+        <FaRegSave className="text-green-500"/>
       </button>
     </>
   );
 };
 
-export default OpenDatabaseButton;
+export default SaveButton;
