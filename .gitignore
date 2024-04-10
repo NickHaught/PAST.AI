@@ -152,3 +152,21 @@ cython_debug/
 
 # Profiling data
 .prof
+
+# dependencies
+frontend/node_modules
+documentai-frontend/node_modules
+
+# build output
+/dist
+/build
+
+# vite
+.cache
+.vite
+
+# logs
+*.log
+
+# TypeScript
+*.tsbuildinfo
