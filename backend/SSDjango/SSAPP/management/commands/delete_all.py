@@ -14,7 +14,7 @@ class Command(BaseCommand):
     help = "Delete all objects in all models"
 
     def handle(self, *args, **options):
-        app_models = apps.get_app_config("teststudio").get_models()
+        app_models = apps.get_app_config("SSAPP").get_models()
         for model in app_models:
             for obj in model.objects.all():
                 obj.delete()
