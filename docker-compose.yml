@@ -3,7 +3,6 @@ version: '3.8'
 services:
   web:
     build: ./documentai-backend/project-setup
-    image: documentai-backend:latest
     command: python /code/documentai-backend/SSDjango/manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/code
@@ -11,7 +10,6 @@ services:
       - 8000:8000
   frontend:
     build: ./documentai-frontend
-    image: documentai-frontend:latest
     command: npm run dev
     volumes:
       - ./documentai-frontend:/app

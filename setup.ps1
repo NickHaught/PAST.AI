@@ -1,9 +1,3 @@
-# Create the virtual environment
-python -m venv .\documentai-backend\project-setup\venv
-
-# Activate the virtual environment
-. .\documentai-backend\project-setup\venv\Scripts\Activate.ps1
-
 # Install necessary libraries
 pip install -q --disable-pip-version-check colorama inquirer
 
@@ -16,22 +10,24 @@ python .\documentai-backend\project-setup\gitpull-setup\setup_env.py
 # Add a separator
 Write-Host "`n------------------------`n"
 
-# Ask the user if they want to install the dependencies
-$install_deps = Read-Host -Prompt "Do you want to install the dependencies in requirements.txt to your local virtual environment? [y/n]"
-if ($install_deps -eq "y") {
-    Write-Host "Installing dependencies, this may take a while..." -NoNewline -ForegroundColor Yellow
-
-    # Run the pip install command
-    pip install -q --disable-pip-version-check -r .\documentai-backend\project-setup\requirements.txt
-
-    Write-Host "`nDependencies installed." -ForegroundColor Green
+# Check if Node.js is installed
+$node_installed = Get-Command node -ErrorAction SilentlyContinue
+if (-not $node_installed) {
+    $install_node = Read-Host -Prompt "Node.js is not installed. Do you want to install Node.js? [y/n]"
+    if ($install_node -eq "y") {
+        Write-Host "Installing Node.js, please wait..." -ForegroundColor Yellow
+        # Run the Node.js installer
+        # Add the code to install Node.js here
+        Write-Host "Node.js installed." -ForegroundColor Green
+    }
+    else {
+        Write-Host "Node.js is required for the frontend. Please install Node.js and run this script again." -ForegroundColor Red
+        exit 1
+    }
 }
-else {
-    Write-Host "Skipped installing dependencies." -ForegroundColor Red
-}
 
-# Add a separator
-Write-Host "`n------------------------`n"
+# Change the frontend port from :3000 to :8000
+$frontend_port = ":3000"
 
 # Check if Docker is installed
 $docker_installed = Get-Command docker -ErrorAction SilentlyContinue
@@ -58,4 +54,4 @@ Write-Host "Starting Docker container..." -ForegroundColor Yellow
 docker-compose up -d > $null 2>&1
 
 # Print the message to the user
-Write-Host "`n`nThe application is now running at http://localhost:8000" -ForegroundColor Green
+Write-Host "`n`nThe application is now running at http://localhost$frontend_port" -ForegroundColor Green

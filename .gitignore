@@ -1,6 +1,9 @@
 /google-cloud-sdk
 /.DS_Store
 /.vscode
+/PAST AI.code-workspace
+
+cred.json
 
 # Django #
 ############
@@ -11,7 +14,6 @@ __pycache__/
 local_settings.py
 db.sqlite3
 media
-cred.json
 
 # If you are using PostgreSQL
 *.env
@@ -150,3 +152,21 @@ cython_debug/
 
 # Profiling data
 .prof
+
+# dependencies
+frontend/node_modules
+documentai-frontend/node_modules
+
+# build output
+/dist
+/build
+
+# vite
+.cache
+.vite
+
+# logs
+*.log
+
+# TypeScript
+*.tsbuildinfo
