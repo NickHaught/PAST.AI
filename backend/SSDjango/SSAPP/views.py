@@ -186,6 +186,7 @@ class PDFPageViewSet(viewsets.ModelViewSet):
         Processes a single PDF page, updates its status, and gathers GPT responses.
         """
         try:
+
             # Process the page
             result = process_pages_util([page.id])
 
@@ -199,7 +200,9 @@ class PDFPageViewSet(viewsets.ModelViewSet):
             response = {
                 'page_id': page.id,
                 'json_output': gpt_response.json_response,
-                'cost': gpt_response.cost,
+                'gpt_cost': gpt_response.cost,
+                'documentAI_cost': page.cost,
+                'processing_time': page.processing_time,
                 'scanned': page.scanned
             }
         except PDFPage.DoesNotExist:

@@ -30,10 +30,23 @@ class PDFPage(models.Model):
         PDFFile, on_delete=models.CASCADE, related_name="pages"
     )
     scanned = models.BooleanField(default=False)
+    scan_start_time = models.DateTimeField(null=True, blank=True)
+    scan_end_time = models.DateTimeField(null=True, blank=True)
     page_number = models.IntegerField()
     file = models.FileField(upload_to="pdf_pages/")
     thumbnail = models.ImageField(upload_to="thumbnails/", null=True, blank=True)
     high_res_image = models.ImageField(upload_to='high_res_images/', null=True, blank=True)
+    
+    if scanned == True:
+        cost = models.FloatField(default=0.006)
+    else:
+        cost = models.FloatField(default=0.0)
+
+    @property
+    def processing_time(self):
+        if self.scan_start_time and self.scan_end_time:
+            return self.scan_end_time - self.scan_start_time
+        return None
 
     def delete(self, *args, **kwargs):
         if os.path.isfile(self.file.path):
@@ -55,6 +68,7 @@ class Token(models.Model):
     y2 = models.FloatField()
     token_info = models.TextField()
     filtered = models.BooleanField(default=False)
+    token_confidence = models.FloatField(default=0.0)
 
     def set_token_info(self, data):
         self.token_info = json.dumps(data)

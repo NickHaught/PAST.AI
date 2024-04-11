@@ -195,6 +195,7 @@ def process_tokens(pdf_page, document, page_width, page_height):
 
                 token_id = f"page{page_number}_token{token_number}"
                 token_info = token_info_to_dict(token, document_text)
+                token_confidence = token.layout.confidence
 
                 # Create and save a Token instance
                 try:
@@ -205,6 +206,7 @@ def process_tokens(pdf_page, document, page_width, page_height):
                         y1=y1,
                         x2=x2,
                         y2=y2,
+                        token_confidence=token_confidence,
                     )
                     token_instance.set_token_info(token_info)
                     token_instance.save()

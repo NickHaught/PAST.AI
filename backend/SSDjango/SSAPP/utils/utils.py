@@ -12,6 +12,7 @@ from .documentAI import process_page
 from .filter_tokens import token_filter
 from .gpt import gpt_token_processing
 import logging
+from django.utils import timezone
 
 logger = logging.getLogger("django")
 
@@ -121,6 +122,13 @@ def process_pages_util(page_ids: list):
 
     for page_id in page_ids:
         try:
+            # Get the page
+            pdf_page = PDFPage.objects.get(id=page_id)
+
+            # Record the start time
+            pdf_page.scan_start_time = timezone.now()
+            pdf_page.save()
+
             # Process each page, filter tokens, and handle GPT processing
             logger.info(f"Document AI Processing for page {page_id}")
             process_page(page_id)
@@ -128,6 +136,11 @@ def process_pages_util(page_ids: list):
             token_filter(page_id)
             logger.info(f"GPT Token Processing for page {page_id}")
             gpt_token_processing(page_id)
+
+            # Record the end time
+            pdf_page.scan_end_time = timezone.now()
+            pdf_page.save()
+            
             results[page_id] = "Success"
         except Exception as e:
             # Record the error against the page ID in the results dictionary
