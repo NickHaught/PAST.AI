@@ -3,19 +3,18 @@ import { FileData,PDFDetail, ProcessedPagesResponse } from "./fileTypes";
 
 const apiClient = axios.create({
   baseURL: "http://localhost:8000/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
+  
 });
 
-// * API CALL: pdf
+
+// * API CALL: pdfs
 export const uploadFiles = async (filePaths: string[]): Promise<FileData[]> => {
   const data = {
     name: "TEST",
     file: filePaths,
   };
   try {
-    const response = await apiClient.post<FileData[]>("/pdf/", data);
+    const response = await apiClient.post<FileData[]>("/pdfs/", data);
     console.log("File paths uploaded successfully");
     return response.data;
   } catch (error) {
@@ -25,10 +24,11 @@ export const uploadFiles = async (filePaths: string[]): Promise<FileData[]> => {
 };
 
 
-// * API CALL: pdf/{id}
+
+// * API CALL: pdfs/{id}
 export const fetchPDFDetails = async (Id: number): Promise<PDFDetail> => {
     try {
-      const response = await apiClient.get(`/pdf/${Id}/`);  // Using apiClient for the request
+      const response = await apiClient.get(`/pdfs/${Id}/`);  // Using apiClient for the request
       return response.data;  // Return the data for further processing
     } catch (error) {
       console.error("Error fetching PDF details:", error);

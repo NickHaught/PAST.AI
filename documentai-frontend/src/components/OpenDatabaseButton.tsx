@@ -22,7 +22,7 @@ const OpenDatabaseButton = ({ className }: Props) => {
         className={`text-white flex items-center bg-light-gray space-x-2 text-sm py-1 px-2 rounded-lg hover:border-blue focus:outline-none ${className}`}
         onClick={handleButtonClick}
       >
-        <FaDatabase className="text-blue"/>
+        <FaDatabase className="text-white" />
       </button>
     </>
   );

@@ -1,35 +1,62 @@
+import { ReactNode } from "react";
 import "../Auto.css";
 
 interface PanelOverlayProps {
-  onPrev: () => void; // Function to handle previous page action
+  onPrev: () => void;
   onNext: () => void;
-  className: string;  // Function to handle next page action
+  onScan?: () => void;
+  className: string;
 }
 
-const PanelOverlay = ({ onPrev, onNext, className }: PanelOverlayProps) => {
+const Button = ({
+  onClick,
+  children,
+  additionalClasses = "",
+}: {
+  onClick?: () => void;
+  children: ReactNode;
+  additionalClasses?: string;
+}) => (
+  <button
+    onClick={onClick}
+    className={`text-white text-sm flex-none focus:outline-none transition duration-150 ease-in-out ${additionalClasses}`}
+  >
+    {children}
+  </button>
+);
+
+const PanelOverlay = ({
+  onPrev,
+  onNext,
+  onScan,
+  className,
+}: PanelOverlayProps) => {
   return (
-    <div className={`flex gap-12 p-4 pt-4 rounded-xl bg-gray ${className}`}>
-      <div className="flex gap-2"><button
-        onClick={onPrev}
-        className="text-white text-sm bg-dark-dark-gray flex-none focus:outline-none hover:border-blue p-2"
-      >
-        &#8592;
-      </button>
-      <button
-        onClick={onNext}
-        className="text-white text-sm bg-dark-dark-gray flex-none focus:outline-none hover:border-blue p-2"
-      >
-        &#8594;
-      </button></div>
-      
-      <div className="flex-auto text-center">
-        <button className="flex-none glow-on-hover focus:outline-none text-sm">
-          Auto
-        </button>
+    <div className={`flex gap-12 p-3 rounded-xl bg-gray ${className}`}>
+      <div className="flex gap-1">
+        <Button
+          onClick={onPrev}
+          additionalClasses="bg-dark-dark-gray hover:border-blue"
+        >
+          &#8592;
+        </Button>
+        <Button
+          onClick={onNext}
+          additionalClasses="bg-dark-dark-gray hover:border-blue"
+        >
+          &#8594;
+        </Button>
       </div>
-      <button className="text-white flex-none bg-blue focus:outline-none hover:border-blue hover:bg-dark-dark-gray transition duration-150 ease-in-out">
+
+      <div className="flex-auto text-center">
+        <Button additionalClasses="glow-on-hover">Auto</Button>
+      </div>
+      <Button
+        onClick={() => onScan && onScan()}
+        additionalClasses="bg-blue hover:border-blue hover:bg-dark-dark-gray"
+      >
         Scan
-      </button>
+      </Button>
     </div>
   );
 };
