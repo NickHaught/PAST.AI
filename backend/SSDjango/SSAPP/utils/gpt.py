@@ -218,5 +218,6 @@ def gpt_token_processing(page_id: int):
     gpt_response = GPTResponse()
     gpt_response.page = PDFPage.objects.get(id=page_id)  # Set the page field
     gpt_response.json_response = json_output_dict  # Set the json_response field
-    gpt_response.cost = cost + cost2  # Set the cost field
+    gpt_response.cost = round(cost + cost2, 3)  # Set the cost field
+
     gpt_response.save()

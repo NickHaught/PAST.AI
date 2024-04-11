@@ -192,6 +192,7 @@ class PDFPageViewSet(viewsets.ModelViewSet):
 
             # Update the page status
             page.scanned = True
+            page.cost = 0.006
             page.save()
 
             # Get the GPT response
@@ -240,6 +241,7 @@ class PDFPageViewSet(viewsets.ModelViewSet):
 
                 if page_id in unscanned_page_ids:
                     pdf_page.scanned = True
+                    pdf_page.cost = 0.006
                     pdf_page.save()
 
                 gpt_response = GPTResponse.objects.get(page_id=page_id)
@@ -247,7 +249,9 @@ class PDFPageViewSet(viewsets.ModelViewSet):
                 responses.append({
                     'page_id': page_id,
                     'json_output': gpt_response.json_response,
-                    'cost': gpt_response.cost,
+                    'gpt_cost': gpt_response.cost,
+                    'documentAI_cost': pdf_page.cost,
+                    'processing_time': pdf_page.processing_time,
                     'scanned': pdf_page.scanned
                 })
             except PDFPage.DoesNotExist:

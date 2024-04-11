@@ -37,17 +37,14 @@ class PDFPage(models.Model):
     thumbnail = models.ImageField(upload_to="thumbnails/", null=True, blank=True)
     high_res_image = models.ImageField(upload_to='high_res_images/', null=True, blank=True)
     
-    if scanned == True:
-        cost = models.FloatField(default=0.006)
-    else:
-        cost = models.FloatField(default=0.0)
+    cost = models.FloatField(default=0.0)
 
     @property
     def processing_time(self):
         if self.scan_start_time and self.scan_end_time:
-            return self.scan_end_time - self.scan_start_time
+            return round((self.scan_end_time - self.scan_start_time).total_seconds())
         return None
-
+        
     def delete(self, *args, **kwargs):
         if os.path.isfile(self.file.path):
             os.remove(self.file.path)
