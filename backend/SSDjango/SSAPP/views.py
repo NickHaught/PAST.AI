@@ -10,12 +10,13 @@ from .serializers import PDFFileSerializer, PDFPageSerializer
 from .utils.utils import split_pdf, process_pages_util, render_pdf_to_images
 import os
 import logging
+from django.db.models import Q
 
 logger = logging.getLogger("django")
 
 class CustomPagination(PageNumberPagination):
     page_size = 1
-    page_query_param = 'page_size'  # Allow client to specify page size
+    page_size_query_param = 'page_size'  # Allow client to specify page size
     max_page_size = 100
 
     def get_paginated_response(self, data):
@@ -36,16 +37,21 @@ class PDFFileViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         try:
-            files = request.FILES.getlist('file')
-            if not files:
+            file_paths = request.data['file']
+            if not file_paths:
                 logger.error("No files provided.")
                 return Response({"error": "No files provided."}, status=status.HTTP_400_BAD_REQUEST)
             
             responses = []
-            for file in files:
+            for file_path in file_paths:
+                name = os.path.basename(file_path)
+                if PDFFile.objects.filter(name=name).exists():
+                    responses.append({"error": f"PDF file {name} already exists."})
+                    continue
+
                 data = {
-                    'name': request.data.get('name', 'Unnamed PDF'),
-                    'file': file,
+                    'name': name,
+                    'file': file_path,
                 }
                 serializer = self.get_serializer(data=data)
                 serializer.is_valid(raise_exception=True)
@@ -67,8 +73,8 @@ class PDFFileViewSet(viewsets.ModelViewSet):
                     response_data["thumbnails"] = thumbnail_paths
                     responses.append(response_data)
                 except Exception as e:
-                    logger.error(f"Failed processing PDF file {file.name}: {str(e)}")
-                    responses.append({"error": f"Failed processing PDF file {file.name}: {str(e)}"})
+                    logger.error(f"Failed processing PDF file {pdf_file.name}: {str(e)}")
+                    responses.append({"error": f"Failed processing PDF file {pdf_file.name}: {str(e)}"})
 
             return Response(responses, status=status.HTTP_201_CREATED)
         except Exception as e:
@@ -129,6 +135,85 @@ class PDFPageViewSet(viewsets.ModelViewSet):
     serializer_class = PDFPageSerializer
     pagination_class = CustomPagination
 
+    # Global flag to control the scanning process
+    should_continue_scanning = True
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        scanned = self.request.query_params.get('scanned', None)
+        if scanned is not None:
+            scanned = scanned.lower() in ['true', '1']  # Convert to boolean
+            queryset = queryset.filter(scanned=scanned)
+        return queryset
+    
+    @action(detail=False, methods=["post"])
+    def auto_scan(self, request, *args, **kwargs):
+        """
+        Automatically scans all unscanned pages.
+        """
+        global should_continue_scanning
+        should_continue_scanning = True
+
+        unscanned_pages = PDFPage.objects.filter(scanned=False)
+
+        for page in unscanned_pages:
+            if not should_continue_scanning:
+                break
+
+            # Process the page
+            self.process_page(page)
+
+        return Response(
+            {"status": "Scanning complete"},
+            status=status.HTTP_200_OK,
+        )
+    
+    @action(detail=False, methods=["post"])
+    def stop_scanning(self, request, *args, **kwargs):
+        """
+        Stops the scanning process.
+        """
+        global should_continue_scanning
+        should_continue_scanning = False
+
+        return Response(
+            {"status": "Scanning stopped"},
+            status=status.HTTP_200_OK,
+        )
+    
+    def process_page(self, page):
+        """
+        Processes a single PDF page, updates its status, and gathers GPT responses.
+        """
+        try:
+            # Process the page
+            result = process_pages_util([page.id])
+
+            # Update the page status
+            page.scanned = True
+            page.save()
+
+            # Get the GPT response
+            gpt_response = GPTResponse.objects.get(page_id=page.id)
+
+            response = {
+                'page_id': page.id,
+                'json_output': gpt_response.json_response,
+                'cost': gpt_response.cost,
+                'scanned': page.scanned
+            }
+        except PDFPage.DoesNotExist:
+            logger.error(f"PDFPage with id {page.id} does not exist.")
+            return {"error": f"PDFPage with id {page.id} does not exist."}
+        except GPTResponse.DoesNotExist:
+            logger.error(f"GPTResponse for PDFPage with id {page.id} does not exist.")
+            return {"error": f"GPTResponse for PDFPage with id {page.id} does not exist."}
+        except Exception as e:
+            logger.error(f"An error occurred while processing page {page.id}: {str(e)}")
+            return {"error": f"An error occurred while processing page {page.id}: {str(e)}"}
+
+        return response
+
     @action(detail=False, methods=["post"])
     def process_pages(self, request, *args, **kwargs):
         """
@@ -138,15 +223,21 @@ class PDFPageViewSet(viewsets.ModelViewSet):
         if not page_ids:
             return Response({"error": "No page IDs provided."}, status=status.HTTP_400_BAD_REQUEST)
 
-        results = process_pages_util(page_ids)  # Assume this function processes the pages
+        # Separate scanned and unscanned pages
+        scanned_page_ids = [page_id for page_id in page_ids if PDFPage.objects.get(id=page_id).scanned]
+        unscanned_page_ids = [page_id for page_id in page_ids if not PDFPage.objects.get(id=page_id).scanned]
+
+        # Process only unscanned pages
+        results = process_pages_util(unscanned_page_ids)
 
         responses = []
-        for page_id in page_ids:
+        for page_id in unscanned_page_ids + scanned_page_ids:
             try:
                 pdf_page = PDFPage.objects.get(id=page_id)
 
-                pdf_page.scanned = True
-                pdf_page.save()
+                if page_id in unscanned_page_ids:
+                    pdf_page.scanned = True
+                    pdf_page.save()
 
                 gpt_response = GPTResponse.objects.get(page_id=page_id)
 
