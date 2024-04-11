@@ -20,6 +20,7 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF }: Props) => {
   const [view, setView] = useState<"list" | "viewer" | null>(null);
   const [files, setFiles] = useState<FileData[]>([]);
   const [selectedPDF, setSelectedPDF] = useState<FileData | null>(null);
+  const [selectedPages, setSelectedPages] = useState<number[]>([]);
   const [statusMessage, setStatusMessage] = useState<{
     type: "success" | "warning" | "error";
     message: string;
@@ -35,6 +36,14 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF }: Props) => {
   const handlePDFSelect = (pdf: FileData) => {
     setSelectedPDF(pdf);
     setView("viewer");
+  };
+
+  const handleScan = () => {
+    console.log('Selected pages for scanning:', selectedPages);
+  };
+
+  const handlePageSelection = (pageIds: number[]) => {
+    setSelectedPages(pageIds);
   };
 
   const clearStatusMessage = () => {
@@ -79,13 +88,23 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF }: Props) => {
         {view === "list" ? (
           <PDFList files={files} onSelectPDF={handlePDFSelect} />
         ) : selectedPDF ? (
-          <PDFViewer file={selectedPDF} onPDFSelect={onPDFSelect} />
+          <PDFViewer
+            file={selectedPDF}
+            onPDFSelect={onPDFSelect}
+            onScan={setSelectedPages}
+          />
         ) : null}
       </InnerContainer>
-      <PanelOverlay className="absolute bottom-[40px] left-1/2 transform -translate-x-1/2" />
+      <PanelOverlay
+        className="absolute bottom-[40px] left-1/2 transform -translate-x-1/2"
+        onScan={
+          selectedPDF
+            ? () => handleScan(selectedPages) //selectedPDF.pages.map((page) => page.id)
+            : undefined
+        }
+      />
     </div>
   );
 };
 
 export default InputCard;
-
