@@ -1,6 +1,7 @@
 # views.py
 
 from rest_framework import viewsets, status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.core.files.storage import default_storage
@@ -12,9 +13,26 @@ import logging
 
 logger = logging.getLogger("django")
 
+class CustomPagination(PageNumberPagination):
+    page_size = 1
+    page_query_param = 'page_size'  # Allow client to specify page size
+    max_page_size = 100
+
+    def get_paginated_response(self, data):
+        return Response({
+            'links': {
+                'next': self.get_next_link(),
+                'previous': self.get_previous_link()
+            },
+            'count': self.page.paginator.count,
+            'results': data
+        })
+    
+
 class PDFFileViewSet(viewsets.ModelViewSet):
     queryset = PDFFile.objects.all()
     serializer_class = PDFFileSerializer
+    pagination_class = CustomPagination
 
     def create(self, request, *args, **kwargs):
         try:
@@ -109,6 +127,7 @@ class PDFFileViewSet(viewsets.ModelViewSet):
 class PDFPageViewSet(viewsets.ModelViewSet):
     queryset = PDFPage.objects.all()
     serializer_class = PDFPageSerializer
+    pagination_class = CustomPagination
 
     @action(detail=False, methods=["post"])
     def process_pages(self, request, *args, **kwargs):

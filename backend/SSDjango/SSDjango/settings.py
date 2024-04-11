@@ -112,6 +112,10 @@ MEDIA_ROOT = BASE_DIR / "media"
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = True
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+}
+
 FORMATTERS = (
     {
         "verbose": {
