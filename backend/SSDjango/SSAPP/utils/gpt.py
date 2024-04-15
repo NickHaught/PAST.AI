@@ -1,7 +1,4 @@
-from ..models import PDFPage, Token, GPTResponse
-import os
-from pathlib import Path
-from dotenv import load_dotenv
+from ..models import PDFPage, GPTResponse, AppKeys, Settings
 import tiktoken
 import requests
 import json
@@ -75,7 +72,7 @@ def generate_text(page_id: int):
         raise Exception(f"Failed to generate text for page {page_id}: {e}")
 
 
-def process_gpt(text, instructions, format_response: str):
+def process_gpt(text, instructions, format_response: str, max_tokens: int, model: str):
     """
     Calls the OpenAI API to process text using specified instructions and format.
 
@@ -94,17 +91,12 @@ def process_gpt(text, instructions, format_response: str):
     """
     logger.info("Processing text with GPT...")
     try:
-        # Build paths inside the project like this: BASE_DIR / 'subdir'.
-        BASE_DIR = Path(__file__).resolve().parent.parent
-
-        # Load environment variables from the .env file
-        dotenv_path = BASE_DIR / '.env'
-        load_dotenv(dotenv_path)
-
-        api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            logger.error("API key is missing. Please check your .env file.")
-            raise EnvironmentError("API key is missing. Please check your .env file.")
+        # Fetch the OpenAI API key from the database
+        app_keys = AppKeys.objects.first()  # Replace with your query
+        if not app_keys:
+            raise ObjectDoesNotExist("API key does not exist.")
+        
+        api_key = app_keys.openai_api_key
 
         headers = {
             "Content-Type": "application/json",
@@ -112,16 +104,16 @@ def process_gpt(text, instructions, format_response: str):
         }
 
         payload = {
-            "model": "gpt-4-0125-preview",
+            "model": model,
             "response_format": {"type": format_response},
             "messages": [
                 {"role": "system", "content": instructions},
                 {"role": "user", "content": text},
             ],
-            "max_tokens": 1000,
+            "max_tokens": max_tokens,
         }
 
-        input_tokens = count_tokens(text) + count_tokens(instructions)
+        input_tokens = count_tokens(text, model) + count_tokens(instructions, model)
 
         response = requests.post(
             "https://api.openai.com/v1/chat/completions", headers=headers, json=payload
@@ -132,7 +124,7 @@ def process_gpt(text, instructions, format_response: str):
             message_content = response_json["choices"][0]["message"]["content"]
 
             # Count tokens in the output text
-            output_tokens = count_tokens(message_content)
+            output_tokens = count_tokens(message_content, model)
 
             cost_per_input_token = 0.01 / 1000  # $0.01 per 1,000 tokens for input
             cost_per_output_token = 0.03 / 1000  # $0.03 per 1,000 tokens for output
@@ -154,7 +146,7 @@ def process_gpt(text, instructions, format_response: str):
         raise RuntimeError(f"An unexpected error occurred: {e}")
 
 
-def count_tokens(input_text):
+def count_tokens(input_text, model):
     """
     Counts the number of tokens in the given text using a specific model's encoding.
 
@@ -175,7 +167,7 @@ def count_tokens(input_text):
 
     try:
         # Assume 'tiktoken' is a hypothetical module and 'encoding_for_model' is a method that retrieves a model-specific encoder
-        encoding = tiktoken.encoding_for_model("gpt-4-0125-preview")
+        encoding = tiktoken.encoding_for_model(model)
         if encoding is None:
             raise RuntimeError("Failed to retrieve the encoder for the model.")
 
@@ -203,14 +195,29 @@ def gpt_token_processing(page_id: int):
         Exception: For other unexpected issues.
     """
     logger.info(f"Processing GPT token for page {page_id}...")
-    text1 = generate_text(page_id)
-    instructions1 = "GPT-4, reformat the following text extracted from a PDF via OCR. Preserve all original words and their order. Add line breaks, paragraphs, or indentation as needed for readability. Do not add, remove, or change any words. Ensure logical flow and proper formatting of headings, subheadings, or lists if present. If listing text please use commas, do not make bullted lists."
-    instructions2 = "GPT-4, reformat the following text into JSON format with three main sections: 'title', 'content', and 'source'. The 'title' section should contain the title of the text. The 'content' section should present the main body of the text as a single, cohesive block without breaking it down into subcategories. The 'source' section should include the source of the text. Ensure that the JSON structure is properly formatted and correct. The text should maintain its original meaning and detail, encapsulated within these sections."
+
+    # Get settings from the database
+    try:
+        settings_obj = Settings.objects.first()
+        if settings_obj:
+            settings = {
+                "gpt_instructions": settings_obj.gpt_messages,
+                "gpt_max_tokens": settings_obj.gpt_max_tokens,
+                "gpt_model": settings_obj.gpt_model,
+            }
+    except Exception as e:
+        logger.error(f"Error getting settings: {e}")
+        raise ValueError(f"Error getting settings: {e}")
 
 
-    message_content, cost = process_gpt(text1, instructions1, "text")
+    documentAI_text = generate_text(page_id)
+    instructions1 = settings["gpt_instructions"][0]
+    instructions2 = settings["gpt_instructions"][1]
 
-    json_output, cost2 = process_gpt(message_content, instructions2, "json_object")
+
+    message_content, cost = process_gpt(documentAI_text, instructions1, "text", settings["gpt_max_tokens"], settings["gpt_model"])
+
+    json_output, cost2 = process_gpt(message_content, instructions2, "json_object", settings["gpt_max_tokens"], settings["gpt_model"])
     json_output_dict = json.loads(json_output)
     json_output_dict = json.loads(json_output)
 

@@ -1,7 +1,7 @@
 # serializers.py
 
 from rest_framework import serializers
-from .models import PDFFile, PDFPage
+from .models import PDFFile, PDFPage, AppKeys, Settings
 from django.core.files import File
 import os
 
@@ -24,3 +24,15 @@ class PDFFileSerializer(serializers.ModelSerializer):
         file = validated_data.pop('file')
         validated_data['file'] = file
         return super().create(validated_data)
+
+
+class AppKeysSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AppKeys
+        fields = ['openai_api_key', 'cred_file']
+
+
+class SettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Settings
+        fields = '__all__'

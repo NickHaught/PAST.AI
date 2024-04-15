@@ -24,6 +24,11 @@ class Command(BaseCommand):
         if os.path.exists(high_res_dir):
             shutil.rmtree(high_res_dir)
             os.makedirs(high_res_dir)
+
+        creds = os.path.join(settings.MEDIA_ROOT, 'creds')
+        if os.path.exists(creds):
+            shutil.rmtree(creds)
+            os.makedirs(creds)
         
         self.stdout.write(
             self.style.SUCCESS("Successfully deleted all objects in all models")

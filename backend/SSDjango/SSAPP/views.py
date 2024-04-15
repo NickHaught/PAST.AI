@@ -5,12 +5,12 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.core.files.storage import default_storage
-from .models import PDFFile, PDFPage, GPTResponse
-from .serializers import PDFFileSerializer, PDFPageSerializer
+from .models import PDFFile, PDFPage, GPTResponse, AppKeys, Settings
+from .serializers import PDFFileSerializer, PDFPageSerializer, AppKeysSerializer, SettingsSerializer
 from .utils.utils import split_pdf, process_pages_util, render_pdf_to_images
 import os
 import logging
-from django.db.models import Q
+
 
 logger = logging.getLogger("django")
 
@@ -265,3 +265,12 @@ class PDFPageViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+
+class AppKeysViewSet(viewsets.ModelViewSet):
+    queryset = AppKeys.objects.all()
+    serializer_class = AppKeysSerializer
+
+
+class SettingsViewSet(viewsets.ModelViewSet):
+    queryset = Settings.objects.all()
+    serializer_class = SettingsSerializer

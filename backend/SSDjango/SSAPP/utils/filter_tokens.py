@@ -1,4 +1,4 @@
-from ..models import PDFPage, Token
+from ..models import PDFPage, Settings
 from django.core.exceptions import ObjectDoesNotExist
 import numpy as np
 import logging
@@ -19,14 +19,23 @@ def token_filter(page_id: int):
         Exception: For any other unexpected issues.
     """
     logger.info(f"Filtering tokens for page {page_id}...")
-    settings = {
-        "color_filter": True,
-        "color_similarity_threshold": 0.6,
-        "handwritten_filter": True,
-        "unicode_filter": True,
-        "confidence_filter": 0.7,
-        "font_size_filter": 3,
-    }
+    settings = {}
+
+    # Get the settings from the database
+    try:
+        settings_obj = Settings.objects.first()
+        if settings_obj:
+            settings = {
+                "color_filter": settings_obj.color_filter,
+                "color_similarity_threshold": settings_obj.color_similarity_threshold,
+                "handwritten_filter": settings_obj.handwritten_filter,
+                "unicode_filter": settings_obj.unicode_filter,
+                "confidence_filter": settings_obj.confidence_filter,
+                "font_size_filter": settings_obj.font_size_filter,
+            }
+    except Exception as e:
+        logger.error(f"Error getting settings: {e}")
+        raise ValueError(f"Error getting settings: {e}")
 
     try:
         # Get the PDFPage instance from the database
