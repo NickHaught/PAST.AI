@@ -32,12 +32,9 @@ const OpenFolderButton = ({
 
     setLoading(true);
     const allFiles = Array.from(event.target.files);
-    const filePaths = allFiles.map(
-      (file) => file.webkitRelativePath || file.name
-    );
 
     try {
-      const files = await uploadFiles(filePaths);
+      const files = await uploadFiles(allFiles);
       console.log("File paths uploaded successfully");
       onUploadComplete(files);
       setStatusMessage({
