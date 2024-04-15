@@ -14,19 +14,13 @@ class PDFPageSerializer(serializers.ModelSerializer):
 
 class PDFFileSerializer(serializers.ModelSerializer):
     pages = PDFPageSerializer(many=True, read_only=True)
-    file = serializers.CharField(write_only=True)
+    file = serializers.FileField(write_only=True)
 
     class Meta:
         model = PDFFile
         fields = ["id", "name", "file", "pages"]
 
-    def validate_file(self, value):
-        if not os.path.exists(value):
-            raise serializers.ValidationError("File does not exist.")
-        return value
-
     def create(self, validated_data):
-        file_path = validated_data.pop('file')
-        with open(file_path, 'rb') as f:
-            validated_data['file'] = File(f, name=os.path.basename(file_path))
-            return super().create(validated_data)
+        file = validated_data.pop('file')
+        validated_data['file'] = file
+        return super().create(validated_data)

@@ -36,50 +36,46 @@ class PDFFileViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
     def create(self, request, *args, **kwargs):
-        try:
-            file_paths = request.data['file']
-            if not file_paths:
-                logger.error("No files provided.")
-                return Response({"error": "No files provided."}, status=status.HTTP_400_BAD_REQUEST)
-            
-            responses = []
-            for file_path in file_paths:
-                name = os.path.basename(file_path)
-                if PDFFile.objects.filter(name=name).exists():
-                    responses.append({"error": f"PDF file {name} already exists."})
-                    continue
+        files = request.FILES.getlist('file')
+        if not files:
+            logger.error("No files provided.")
+            return Response({"error": "No files provided."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        responses = []
+        for file in files:
+            name = file.name
+            if PDFFile.objects.filter(name=name).exists():
+                responses.append({"error": f"PDF file {name} already exists."})
+                continue
 
-                data = {
-                    'name': name,
-                    'file': file_path,
-                }
-                serializer = self.get_serializer(data=data)
-                serializer.is_valid(raise_exception=True)
-                self.perform_create(serializer)
+            data = {
+                'name': name,
+                'file': file,
+            }
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
 
-                try:
-                    pdf_file = PDFFile.objects.get(id=serializer.data["id"])
-                    split_pdf(pdf_file)  # Assuming this can raise exceptions
-                    
-                    pages = PDFPage.objects.filter(pdf_file=pdf_file)
-                    page_ids = [page.id for page in pages]
-                    thumbnail_paths = [
-                        request.build_absolute_uri(page.thumbnail.url) if page.thumbnail else None 
-                        for page in pages
-                    ]
+            try:
+                pdf_file = PDFFile.objects.get(id=serializer.data["id"])
+                split_pdf(pdf_file)  # Assuming this can raise exceptions
+                
+                pages = PDFPage.objects.filter(pdf_file=pdf_file)
+                page_ids = [page.id for page in pages]
+                thumbnail_paths = [
+                    request.build_absolute_uri(page.thumbnail.url) if page.thumbnail else None 
+                    for page in pages
+                ]
 
-                    response_data = serializer.data
-                    response_data["pages"] = page_ids
-                    response_data["thumbnails"] = thumbnail_paths
-                    responses.append(response_data)
-                except Exception as e:
-                    logger.error(f"Failed processing PDF file {pdf_file.name}: {str(e)}")
-                    responses.append({"error": f"Failed processing PDF file {pdf_file.name}: {str(e)}"})
+                response_data = serializer.data
+                response_data["pages"] = page_ids
+                response_data["thumbnails"] = thumbnail_paths
+                responses.append(response_data)
+            except Exception as e:
+                logger.error(f"Failed processing PDF file {pdf_file.name}: {str(e)}")
+                responses.append({"error": f"Failed processing PDF file {pdf_file.name}: {str(e)}"})
 
-            return Response(responses, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            logger.error(f"An error occurred while processing PDF files: {str(e)}")
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(responses, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, *args, **kwargs):
         try:
