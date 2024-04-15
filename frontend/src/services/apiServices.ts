@@ -8,10 +8,11 @@ const apiClient = axios.create({
 
 
 // * API CALL: pdfs
-export const uploadFiles = async (filePaths: string[]): Promise<FileData[]> => {
+export const uploadFiles = async (files: File[]): Promise<FileData[]> => {
+  console.log("Uploading file:", files.length);
   const data = {
     name: "TEST",
-    file: filePaths,
+    file: files,
   };
   try {
     const response = await apiClient.post<FileData[]>("/pdfs/", data);
