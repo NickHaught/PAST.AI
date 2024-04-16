@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.hashers import make_password, check_password
 import os
 import json
 
@@ -86,3 +87,37 @@ class GPTResponse(models.Model):
     @json_response.setter
     def json_response(self, value):
         self._json_response = json.dumps(value)
+
+
+class AppKeys(models.Model):
+    openai_api_key = models.CharField(max_length=128)
+    cred_file = models.FileField(upload_to='creds/')  # JSON credential file
+
+
+class Settings(models.Model):
+
+    # Document AI processing settings
+    compute_style_info = models.BooleanField(default=True)
+    enable_native_pdf_parsing = models.BooleanField(default=True)
+    enable_image_quality_scores = models.BooleanField(default=True)
+    enable_symbol = models.BooleanField(default=True)
+
+    # Document AI import settings
+    location = models.CharField(max_length=32, default='us')
+    project_id = models.CharField(max_length=64)
+    processor_id = models.CharField(max_length=64)
+    processor_version = models.CharField(max_length=64)
+    mime_type = models.CharField(max_length=64)
+
+    # Token filtering settings
+    color_filter = models.BooleanField(default=True)
+    color_similarity_threshold = models.FloatField(default=0.6)
+    handwritten_filter = models.BooleanField(default=True)
+    unicode_filter = models.BooleanField(default=True)
+    confidence_filter = models.FloatField(default=0.7)
+    font_size_filter = models.IntegerField(default=3)
+
+    # GPT settings
+    gpt_max_tokens = models.IntegerField(default=2048)
+    gpt_model = models.CharField(max_length=64, default='gpt-3.5-turbo')
+    gpt_messages = models.JSONField(default=list)

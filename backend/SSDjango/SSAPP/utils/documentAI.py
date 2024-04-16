@@ -1,7 +1,7 @@
 import os
 from google.api_core.client_options import ClientOptions
 from google.cloud import documentai
-from ..models import PDFPage, Token
+from ..models import PDFPage, Token, Settings
 from pathlib import Path
 from PyPDF2 import (
     PdfReader as PyPDF2Reader,
@@ -12,13 +12,10 @@ import logging
 logger = logging.getLogger("django")
 
 
-def initialize_configuration(cred_file_name):
+def initialize_configuration():
     """
     Initializes the application's configuration by setting up Google Application Credentials,
     fetching application settings, and preparing Document AI client and options.
-
-    Args:
-        cred_file_name (str): The name of the Google Application credentials file.
 
     Returns:
         tuple: Returns a tuple containing the configured process options, Document AI client,
@@ -32,24 +29,34 @@ def initialize_configuration(cred_file_name):
     logger.info("Initializing configuration...")
     try:
         # Set up Google Application Credentials
-        google_app_creds_path = Path(__file__).parent / cred_file_name
-        if not google_app_creds_path.is_file():
-            logger.error(f"Credentials file does not exist: {google_app_creds_path}")
-            raise FileNotFoundError(f"Credentials file does not exist: {google_app_creds_path}")
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(google_app_creds_path)
-        
-        # Define hardcoded settings
-        settings = {
-            "compute_style_info": True,
-            "enable_native_pdf_parsing": True,
-            "enable_image_quality_scores": True,
-            "enable_symbol": True,
-            "location": "us",
-            "project_id": "ssdocumentai",
-            "processor_id": "327a00af9402484d",
-            "processor_version": "pretrained-ocr-v2.0-2023-06-02",
-            "mime_type": "application/pdf",
-        }
+        base_dir = Path(__file__).resolve().parent.parent.parent
+        creds_dir = base_dir / 'media' / 'creds'
+        cred_file = next(creds_dir.glob('*'), None)  # Get the first file in the creds directory
+        if not cred_file or not cred_file.is_file():
+            logger.error(f"No credentials file found in: {creds_dir}")
+            raise FileNotFoundError(f"No credentials file found in: {creds_dir}")
+        logger.info(f"Using credentials file: {cred_file}")
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = str(cred_file)
+
+        settings = {}
+
+        # Fetch application settings from the database
+        try:
+            app_settings = Settings.objects.first()
+            if app_settings:
+                settings["compute_style_info"] = app_settings.compute_style_info
+                settings["enable_native_pdf_parsing"] = app_settings.enable_native_pdf_parsing
+                settings["enable_image_quality_scores"] = app_settings.enable_image_quality_scores
+                settings["enable_symbol"] = app_settings.enable_symbol
+                settings["location"] = app_settings.location
+                settings["project_id"] = app_settings.project_id
+                settings["processor_id"] = app_settings.processor_id
+                settings["processor_version"] = app_settings.processor_version
+                settings["mime_type"] = app_settings.mime_type
+        except Exception as e:
+            logger.error(f"Failed to fetch application settings: {e}")
+            raise Exception(f"Failed to fetch application settings: {e}")
+
         
         # Configure the Document AI client and process options
         process_options = documentai.ProcessOptions(
@@ -100,7 +107,7 @@ def process_page(page_id: int):
     logger.info(f"Processing page {page_id}...")
     try:
         # Initialize configuration
-        process_options, client, client_version = initialize_configuration("cred.json")
+        process_options, client, client_version = initialize_configuration()
 
         # Get the page from the database
         try:
