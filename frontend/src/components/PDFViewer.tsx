@@ -72,9 +72,9 @@ const PDFViewer = ({ file, onPDFSelect, onScan }: Props) => {
           displayedPages.map((page) => (
             <div
               key={page.id}
-              className={`relative ${isSelectMode ? "cursor-pointer p-2.5" : ""} ${
-                selectedPages.includes(page.id) ? "bg-blue-200" : ""
-              } `}
+              className={`relative ${
+                isSelectMode ? "cursor-pointer p-2.5" : ""
+              } ${selectedPages.includes(page.id) ? "bg-blue-200" : ""} `}
               onClick={() => isSelectMode && togglePageSelection(page.id)}
             >
               {isSelectMode && (
@@ -87,8 +87,8 @@ const PDFViewer = ({ file, onPDFSelect, onScan }: Props) => {
                 </div>
               )}
               <img
-                src={page.thumbnail}
-                alt={`Page ${page.page_number}`}
+                src={"page.high_res_image"}
+                alt={`Page ${page.thumbnail}`}
                 className="w-full h-auto rounded-lg"
               />
               <div className="text-center bg-light-gray pb-4 pt-1">{`Page ${page.page_number}`}</div>
@@ -103,4 +103,3 @@ const PDFViewer = ({ file, onPDFSelect, onScan }: Props) => {
 };
 
 export default PDFViewer;
-

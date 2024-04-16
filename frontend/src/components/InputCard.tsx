@@ -9,6 +9,7 @@ import PDFList from "./PDFList";
 import PDFViewer from "./PDFViewer";
 import StatusMessage from "./StatusMessage";
 import { FileData, PDFDetail } from "../services/fileTypes";
+import { fetchPDFs } from "../services/apiServices";
 
 interface Props {
   width: number;
@@ -26,11 +27,42 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF }: Props) => {
     message: string;
   } | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [nextPageUrl, setNextPageUrl] = useState<string | null>(null);
+  const [prevPageUrl, setPrevPageUrl] = useState<string | null>(null);
 
-  const handleUploadComplete = (uploadedFiles: FileData[]) => {
-    setFiles(uploadedFiles);
+  const handleUploadComplete = (response: {
+    files: FileData[];
+    next: string | null;
+    prev: string | null;
+  }) => {
+    setFiles(response.files);
+    setNextPageUrl(response.next);
+    setPrevPageUrl(response.prev);
     setLoading(false);
     setView("list");
+  };
+
+  const handlePDFChange = async (url: string) => {
+    try {
+      setLoading(true);
+      const data = await fetchPDFs(url);
+      setFiles(data.files);
+      setNextPageUrl(data.next);
+      setPrevPageUrl(data.prev);
+      setLoading(false);
+    } catch (error) {
+      console.error("Failed to fetch PDFs:", error);
+      setStatusMessage({ type: "error", message: "Failed to fetch PDFs." });
+      setLoading(false);
+    }
+  };
+
+  const handleNext = () => {
+    if (nextPageUrl) handlePDFChange(nextPageUrl);
+  };
+
+  const handlePrev = () => {
+    if (prevPageUrl) handlePDFChange(prevPageUrl);
   };
 
   const handlePDFSelect = (pdf: FileData) => {
@@ -39,7 +71,7 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF }: Props) => {
   };
 
   const handleScan = () => {
-    console.log('Selected pages for scanning:', selectedPages);
+    console.log("Selected pages for scanning:", selectedPages);
   };
 
   const handlePageSelection = (pageIds: number[]) => {
@@ -81,7 +113,11 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF }: Props) => {
             setStatusMessage={setStatusMessage}
             setLoading={setLoading}
           />
-          <OpenDatabaseButton />
+          <OpenDatabaseButton
+            onDocumentsFetched={handleUploadComplete} // Reuse existing handler or create a new one if needed
+            setLoading={setLoading}
+            setStatusMessage={setStatusMessage}
+          />
         </div>
       </div>
       <InnerContainer loading={loading}>
@@ -96,6 +132,8 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF }: Props) => {
         ) : null}
       </InnerContainer>
       <PanelOverlay
+        onPrev={handlePrev}
+        onNext={handleNext}
         className="absolute bottom-[40px] left-1/2 transform -translate-x-1/2"
         onScan={
           selectedPDF

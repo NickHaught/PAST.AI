@@ -11,6 +11,7 @@ export interface FileData {
 
 // Interface for a page inside the `pages` array after fetching PDF details
 export interface Page {
+  high_res_image: string | undefined;
   id: number;
   page_number: number;
   file: string;
