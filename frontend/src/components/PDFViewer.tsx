@@ -5,31 +5,14 @@ import { FaRegCircle, FaCheckCircle, FaSquare } from "react-icons/fa";
 import { IoGrid } from "react-icons/io5";
 
 interface Props {
-  file: { id: number; name: string };
+  pdfDetail: PDFDetail;
   onPDFSelect: (pdfDetail: PDFDetail) => void;
   onScan: (pageIds: number[]) => void;
 }
 
-const PDFViewer = ({ file, onPDFSelect, onScan }: Props) => {
-  const [pdfDetail, setPdfDetail] = useState<PDFDetail | null>(null);
+const PDFViewer = ({ pdfDetail, onScan }: Props) => {
   const [selectedPages, setSelectedPages] = useState<number[]>([]);
   const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (file.id) {
-      fetchPDFDetails(file.id)
-        .then((data) => {
-          setPdfDetail(data);
-          onPDFSelect(data);
-          if (data.pages.length >= 2) {
-            setSelectedPages([data.pages[1].id]);
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching PDF details:", error);
-        });
-    }
-  }, [file.id, onPDFSelect]);
 
   const togglePageSelection = (pageId: number) => {
     setSelectedPages((prev) => {
@@ -87,7 +70,7 @@ const PDFViewer = ({ file, onPDFSelect, onScan }: Props) => {
                 </div>
               )}
               <img
-                src={"page.high_res_image"}
+                src={page.thumbnail}
                 alt={`Page ${page.thumbnail}`}
                 className="w-full h-auto rounded-lg"
               />

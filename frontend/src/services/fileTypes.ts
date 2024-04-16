@@ -22,8 +22,20 @@ export interface Page {
 export interface PDFDetail {
   id: number;
   name: string;
-  file: string;
-  pages: Page[];
+  pages: Array<{
+    id: number;
+    high_res_image: string;
+    thumbnail: string;
+    page_number: number;
+    gpt_cost: number;
+    documentAI_cost: number;
+    processing_time: number;
+    json_output: Array<{
+      title: string;
+      content: string;
+      source: string;
+    }>
+  }>;
 }
 
 export interface JsonOutput {

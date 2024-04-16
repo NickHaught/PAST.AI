@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import "react-resizable/css/styles.css";
 import InnerNavbar from "./InnerNavbar";
 import InnerContainer from "./InnerContainer";
@@ -9,19 +9,21 @@ import PDFList from "./PDFList";
 import PDFViewer from "./PDFViewer";
 import StatusMessage from "./StatusMessage";
 import { FileData, PDFDetail } from "../services/fileTypes";
-import { fetchPDFs } from "../services/apiServices";
+import { fetchPDFDetails, fetchPDFs } from "../services/apiServices";
 
 interface Props {
   width: number;
   onPDFSelect: (pdfDetail: PDFDetail) => void;
   clearSelectedPDF: () => void;
+  onScan: (pageIds: number[]) => void;
 }
 
-const InputCard = ({ width, onPDFSelect, clearSelectedPDF }: Props) => {
+const InputCard = ({ width, onPDFSelect, clearSelectedPDF, onScan }: Props) => {
   const [view, setView] = useState<"list" | "viewer" | null>(null);
   const [files, setFiles] = useState<FileData[]>([]);
   const [selectedPDF, setSelectedPDF] = useState<FileData | null>(null);
   const [selectedPages, setSelectedPages] = useState<number[]>([]);
+  const [pdfDetail, setPdfDetail] = useState<PDFDetail | null>(null);
   const [statusMessage, setStatusMessage] = useState<{
     type: "success" | "warning" | "error";
     message: string;
@@ -29,6 +31,8 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF }: Props) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [nextPageUrl, setNextPageUrl] = useState<string | null>(null);
   const [prevPageUrl, setPrevPageUrl] = useState<string | null>(null);
+
+  const memoizedOnPDFSelect = useCallback(onPDFSelect, []);
 
   const handleUploadComplete = (response: {
     files: FileData[];
@@ -65,17 +69,34 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF }: Props) => {
     if (prevPageUrl) handlePDFChange(prevPageUrl);
   };
 
-  const handlePDFSelect = (pdf: FileData) => {
-    setSelectedPDF(pdf);
-    setView("viewer");
+  const handlePDFSelect = async (pdf: FileData) => {
+    setLoading(true);
+    try {
+      const pdfDetails = await fetchPDFDetails(pdf.id);
+      console.log("PDF details fetched successfully:", pdfDetails);
+      onPDFSelect(pdfDetails);
+      setSelectedPDF(pdf); // Store the selected PDF's basic info
+      setPdfDetail(pdfDetails); // Store the fetched detailed info
+      setView("viewer");
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching PDF details:", error);
+      setStatusMessage({
+        type: "error",
+        message: "Failed to fetch PDF details.",
+      });
+      setLoading(false);
+    }
   };
 
-  const handleScan = () => {
-    console.log("Selected pages for scanning:", selectedPages);
+  const handleScan = (selectedPages: number[]) => {
+    console.log("(INPUT) Selected pages for scanning:", selectedPages);
   };
 
   const handlePageSelection = (pageIds: number[]) => {
+    console.log("Sending to Main", selectedPages);
     setSelectedPages(pageIds);
+    onScan(pageIds);
   };
 
   const clearStatusMessage = () => {
@@ -125,9 +146,9 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF }: Props) => {
           <PDFList files={files} onSelectPDF={handlePDFSelect} />
         ) : selectedPDF ? (
           <PDFViewer
-            file={selectedPDF}
+            pdfDetail={pdfDetail}
             onPDFSelect={onPDFSelect}
-            onScan={setSelectedPages}
+            onScan={handlePageSelection}
           />
         ) : null}
       </InnerContainer>
