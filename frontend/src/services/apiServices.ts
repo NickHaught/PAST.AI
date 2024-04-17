@@ -66,7 +66,7 @@ export const fetchPDFDetails = async (Id: number): Promise<PDFDetail> => {
 
 export const processPages = async (selectedPages: number[]) => {
   const data = {
-    pdf_ids: selectedPages
+    page_ids: selectedPages
   }
   try {
     const response = await apiClient.post("/pages/process_pages/", data );
