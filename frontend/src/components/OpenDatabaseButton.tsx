@@ -24,7 +24,13 @@ const OpenDatabaseButton = ({
     try {
       const response = await fetchDocuments(2, false); // Default parameters are used here
       console.log("Documents fetched successfully:", response);
-      onDocumentsFetched({
+      if (response.results.length === 0) {
+        setStatusMessage({
+          type: "error",
+          message: "No files found in the database."
+        });
+      } else {
+         onDocumentsFetched({
         files: response.results,
         next: response.links.next,
         prev: response.links.previous,
@@ -33,6 +39,9 @@ const OpenDatabaseButton = ({
         type: "success",
         message: "PDFs fetched successfully.",
       });
+      }
+     
+      
     } catch (error) {
       console.error("Error fetching documents:", error);
       setStatusMessage({ type: "error", message: "Error fetching documents." });
