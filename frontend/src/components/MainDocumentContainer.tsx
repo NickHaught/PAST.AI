@@ -22,7 +22,8 @@ const MainDocumentContainer = () => {
   const handlePageSelection = (pageIds: number[]) => {
     console.log("Selected page IDs:", pageIds);
     setSelectedPageIds(pageIds);
-  };
+};
+
 
   const clearSelectedPDF = () => {
     setSelectedPDF(null);
@@ -74,10 +75,7 @@ const MainDocumentContainer = () => {
       </Resizable>
 
       <div className="flex">
-        <OutputCard
-          selectedPDF={selectedPDF}
-          selectedPageIds={selectedPageIds}
-        />
+        <OutputCard selectedPDF={selectedPDF} selectedPageIds={selectedPageIds}/>
       </div>
     </div>
   );

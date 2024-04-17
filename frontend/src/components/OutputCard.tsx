@@ -1,20 +1,21 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import InnerNavbar from "./InnerNavbar";
 import InnerContainer from "./InnerContainer";
+import { PDFDetail } from "../services/fileTypes";
+import { getProcessedInfo } from "../services/apiServices";
 import ImageDisplay from "./Document";
 import PageData from "./PageData";
 import SaveButton from "./SaveButton";
-import { PDFDetail } from "../services/fileTypes";
 
 interface OutputCardProps {
   selectedPDF: PDFDetail | null;
   selectedPageIds: number[];
 }
 
-const OutputCard: React.FC<OutputCardProps> = ({
-  selectedPDF,
-  selectedPageIds,
-}) => {
+const OutputCard = ({ selectedPDF, selectedPageIds }: OutputCardProps) => {
+  const [processedData, setProcessedData] =
+    useState<ProcessedPagesResponse | null>(null);
+
   const handleSavePageData = (pageId: number, jsonOutput: any) => {
     console.log("Saving page data for Page ID:", pageId, "Data:", jsonOutput);
   };
@@ -25,13 +26,13 @@ const OutputCard: React.FC<OutputCardProps> = ({
     <div className="flex flex-col bg-gray rounded-xl p-6">
       <h1>Output</h1>
       <div className="flex justify-between items-center">
-        <InnerNavbar navItems={["PDF", "Editor"]} />
+        <InnerNavbar navItems={["Editor"]} />
         <SaveButton />
       </div>
 
       <InnerContainer>
         {selectedPDF ? (
-          selectedPDF.pages.length > 0 ? (
+          selectedPageIds.length > 0 ? (
             <>
               <PageData
                 pages={selectedPDF.pages.filter((page) =>
@@ -39,18 +40,12 @@ const OutputCard: React.FC<OutputCardProps> = ({
                 )}
                 onSave={handleSavePageData}
               />
-              {selectedPDF.pages.map((page) => (
-                <ImageDisplay
-                  key={page.id}
-                  imagePath={page.high_res_image}
-                  text={`Page ${page.page_number}`}
-                />
-              ))}
+              <ImageDisplay imagePath="Test_page_1_thumbnail.png" />
             </>
           ) : (
             <ImageDisplay
               imagePath="Test_page_1_thumbnail.png"
-              text="This PDF contains no pages."
+              text="No pages selected."
               icon="LuFileWarning"
             />
           )

@@ -9,7 +9,7 @@ import PDFList from "./PDFList";
 import PDFViewer from "./PDFViewer";
 import StatusMessage from "./StatusMessage";
 import { FileData, PDFDetail } from "../services/fileTypes";
-import { fetchPDFDetails, fetchPDFs } from "../services/apiServices";
+import { fetchPDFDetails, fetchPDFs, processPages } from "../services/apiServices";
 
 interface Props {
   width: number;
@@ -32,16 +32,20 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF, onScan }: Props) => {
   const [nextPageUrl, setNextPageUrl] = useState<string | null>(null);
   const [prevPageUrl, setPrevPageUrl] = useState<string | null>(null);
 
-  const memoizedOnPDFSelect = useCallback(onPDFSelect, []);
 
-  const handleUploadComplete = (response: {
-    files: FileData[];
-    next: string | null;
-    prev: string | null;
-  }) => {
-    setFiles(response.files);
-    setNextPageUrl(response.next);
-    setPrevPageUrl(response.prev);
+  const handleUploadComplete = (input: FileData[] | { files: FileData[], next: string | null, prev: string | null }) => {
+    let files, next, prev;
+    if (Array.isArray(input)) {
+      files = input;
+      next = prev = null;
+    } else {
+      ({ files, next, prev } = input);
+    }
+    
+    console.log("Files uploaded successfully:", files);
+    setFiles(files);
+    setNextPageUrl(next);
+    setPrevPageUrl(prev);
     setLoading(false);
     setView("list");
   };
@@ -89,8 +93,11 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF, onScan }: Props) => {
     }
   };
 
-  const handleScan = (selectedPages: number[]) => {
+  const handleScan = async (selectedPages: number[]) => {
     console.log("(INPUT) Selected pages for scanning:", selectedPages);
+    const pdfDetails = await processPages(selectedPages);
+    console.log("PDF details fetched successfully:", pdfDetails);
+    
   };
 
   const handlePageSelection = (pageIds: number[]) => {

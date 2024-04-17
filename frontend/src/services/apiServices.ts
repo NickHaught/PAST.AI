@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import { FileData,PDFDetail, ProcessedPagesResponse } from "./fileTypes";
+import { pdf } from "@react-pdf/renderer";
 
 const apiClient = axios.create({
   baseURL: "http://localhost:8000/api",
@@ -51,7 +52,6 @@ export const uploadFiles = async (files: File[]): Promise<FileData[]> => {
 };
 
 
-
 // * API CALL: pdfs/{id}
 export const fetchPDFDetails = async (Id: number): Promise<PDFDetail> => {
     try {
@@ -63,6 +63,20 @@ export const fetchPDFDetails = async (Id: number): Promise<PDFDetail> => {
       throw error;  // Rethrow the error to handle it in the component
     }
   };
+
+export const processPages = async (selectedPages: number[]) => {
+  const data = {
+    pdf_ids: selectedPages
+  }
+  try {
+    const response = await apiClient.post("/pages/process_pages/", data );
+    console.log("Processed pages successfully:", response);
+    return response.data;
+  } catch (error) {
+    console.error("Error processing pages:", error);
+    throw error;
+  }
+};
 
 
 // * API CALL: getProcessedInfo/{id}

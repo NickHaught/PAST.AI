@@ -35,7 +35,7 @@ const PageData: React.FC<PageDataProps> = ({ pages, onSave }) => {
   };
 
   return (
-    <div className="overflow-scroll overflow-y-auto max-h-[75vh] pb-96 p-4">
+    <div className="overflow-scroll overflow-y-auto overflow-x-hidden scrollbar-webkit max-h-[75vh] pb-96 p-4">
       {pages.map((page) => (
         <div key={page.id} className="p-4 rounded-lg bg-lighter-gray mb-4">
           <div className="text-sm mb-4">Page {page.page_number}</div>
@@ -63,7 +63,7 @@ const PageData: React.FC<PageDataProps> = ({ pages, onSave }) => {
               </button>
             </>
           ) : (
-            <p className="text-red-500">No JSON data available for this page.</p>
+            <p className="text-red-500">Unscanned page.</p>
           )}
         </div>
       ))}

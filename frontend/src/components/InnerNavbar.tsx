@@ -24,7 +24,7 @@ const InnerNavbar = ({ navItems, onHomeClick, onPDFClick, activeView }: Props) =
         >
           <FaCircle
             className={`mr-2 ${
-              (item === "Home" && activeView === "list") || (item === "PDF" && activeView === "viewer")
+              (item === "Home" && activeView === "list") || (item === "PDF" && activeView === "viewer" || item === "Editor")
                 ? "text-blue"
                 : "text-light-gray"
             }`}

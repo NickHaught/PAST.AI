@@ -1,12 +1,12 @@
 
 // Interface for a file object after a successful upload request
 export interface FileData {
-  map(arg0: (item: FileData) => { id: number; name: string; filePath: string; pages: number[]; thumbnails: string[]; }): unknown;
   id: number;
   name: string;
   filePath: string;
   pages: number[];
   thumbnails: string[];
+  error?: string;
 }
 
 // Interface for a page inside the `pages` array after fetching PDF details
@@ -30,6 +30,7 @@ export interface PDFDetail {
     gpt_cost: number;
     documentAI_cost: number;
     processing_time: number;
+    scanned: boolean;
     json_output: Array<{
       title: string;
       content: string;
