@@ -18,7 +18,7 @@ const InnerContainer = ({ children, loading }: Props) => {
       ) : children ? (
         <div className="bg-light-gray w-full h-full">{children}</div>
       ) : (
-        <div className="text-center text-gray-500 flex flex-col items-center">
+        <div className="text-center text-white flex flex-col items-center">
           <IoMdCloudUpload className="text-6xl text-gray-400" />{" "}
           {/* Icon with styling */}
           <span>Please upload a folder containing PDFs.</span>
