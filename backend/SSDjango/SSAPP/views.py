@@ -12,9 +12,19 @@ import os
 import logging
 from django.db.models import Count, F
 from django.db.models import Q
+import random
+from django.conf import settings
+from functools import wraps
+from django.utils import timezone
 
 
 logger = logging.getLogger("django")
+
+def assign_method_with_name(original_method, new_method):
+    @wraps(original_method)
+    def wrapped(*args, **kwargs):
+        return new_method(*args, **kwargs)
+    return wrapped
 
 class CustomPagination(PageNumberPagination):
     page_size = 1
@@ -292,7 +302,79 @@ class PDFPageViewSet(viewsets.ModelViewSet):
             {"status": "Processing complete", "processed_pages": responses},
             status=status.HTTP_200_OK,
         )
+    
+    @action(detail=False, methods=["post"])
+    def process_pages_dummy(self, request, *args, **kwargs):
+        """
+        Dummy endpoint for processing PDF pages. Returns static or randomly generated data.
+        """
+        page_ids = request.data.get("page_ids", [])
+        if not page_ids:
+            return Response({"error": "No page IDs provided."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Predefined titles and contents to simulate realistic data
+        dummy_data = [
+            {
+                "title": "Benjamin Russell Hanby",
+                "content": "Song writer and minister of the United Brethren Church, Hanby was an Otterbein College graduate, class of 1858, known throughout the world for the inspiring songs, 'Darling Nellie Gray', 'Who is He in Yonder Stall', and 'Up on the Housetop'. Hanby House in Westerville is maintained as a memorial honoring Benjamin and his father, Bishop William Hanby.",
+                "source": "Westerville Historical Society and Ohio Historical Society"
+            },
+            {
+                "title": "Historic Landmark",
+                "content": "This site has been recognized as a historic landmark due to its architectural uniqueness and its significance in the local history of the area.",
+                "source": "Local Heritage Committee"
+            },
+            {
+                "title": "Innovation in Agriculture",
+                "content": "Exploring the advances in sustainable agriculture practices that have revolutionized farming in the region. These innovations include water-saving techniques and genetically modified crops that resist pests and diseases.",
+                "source": "Agricultural Innovations Magazine"
+            }
+        ]
+
+        responses = []
+        for page_id in page_ids:
+            try:
+                pdf_page = PDFPage.objects.get(id=page_id)
+                if not pdf_page.scanned:  # Only update if not already scanned
+                    pdf_page.scan_start_time = timezone.now()
+                    # Simulate scan duration
+                    pdf_page.scan_end_time = pdf_page.scan_start_time + timezone.timedelta(seconds=random.randint(100, 200) / 1000)
+                    pdf_page.scanned = True
+                    pdf_page.save()
+
+                    # Create or update the GPTResponse
+                    gpt_response, created = GPTResponse.objects.update_or_create(
+                        page=pdf_page,
+                        defaults={
+                            "json_response": random.choice(dummy_data),
+                            "cost": random.choice([0.005, 0.006, 0.007])
+                        }
+                    )
+
+                    response_data = {
+                        'page_id': page_id,
+                        'json_output': gpt_response.json_response,
+                        'gpt_cost': gpt_response.cost,
+                        'documentAI_cost': pdf_page.cost,
+                        'processing_time': pdf_page.processing_time,
+                        'scanned': pdf_page.scanned
+                    }
+                    responses.append(response_data)
+                else:
+                    responses.append({
+                        'page_id': page_id,
+                        'error': "Page already scanned."
+                    })
+            except PDFPage.DoesNotExist:
+                return Response({"error": f"PDFPage with id {page_id} does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response(
+            {"status": "Dummy processing complete", "processed_pages": responses},
+            status=status.HTTP_200_OK,
+        )
+    
+if settings.DUMMY_MODE:
+    PDFPageViewSet.process_pages = assign_method_with_name(PDFPageViewSet.process_pages, PDFPageViewSet.process_pages_dummy)
 
 class AppKeysViewSet(viewsets.ModelViewSet):
     queryset = AppKeys.objects.all()
@@ -302,3 +384,5 @@ class AppKeysViewSet(viewsets.ModelViewSet):
 class SettingsViewSet(viewsets.ModelViewSet):
     queryset = Settings.objects.all()
     serializer_class = SettingsSerializer
+
+
