@@ -201,7 +201,8 @@ def render_pdf_to_images(page_ids: list):
                 page.save()
 
                 # Append the URL to the list
-                image_urls.append(page.high_res_image.url)
+                image_url = 'http://localhost:8000' + page.high_res_image.url
+                image_urls.append(image_url)
                 
             except Exception as e:
                 logger.error(f"Error processing or saving image for page {page_id}: {e}")
