@@ -51,7 +51,7 @@ const PageData: React.FC<PageDataProps> = ({ pages, onSave }) => {
               <textarea
                 rows={1}
                 value={editedPages[page.id]?.title || page.json_output.title}
-                className="bg-lightest-gray mt-2 px-3 py-2 rounded mb-3 w-full auto-resize"
+                className="bg-lightest-gray mt-2 px-3 py-2 rounded mb-3 w-full auto-resize overflow-y-auto overflow-x-hidden scrollbar-webkit overflow-scroll"
                 onChange={(e) =>
                   handleInputChange(page.id, "title", e.target.value)
                 }
@@ -62,17 +62,11 @@ const PageData: React.FC<PageDataProps> = ({ pages, onSave }) => {
                 value={
                   editedPages[page.id]?.content || page.json_output.content
                 }
-                className="bg-lightest-gray mt-2 px-3 py-2 rounded w-full auto-resize"
+                className="bg-lightest-gray mt-2 px-3 py-2 rounded w-full auto-resize  overflow-y-auto overflow-x-hidden scrollbar-webkit overflow-scroll"
                 onChange={(e) =>
                   handleInputChange(page.id, "content", e.target.value)
                 }
               />
-              <button
-                onClick={() => handleSavePageData(page.id)}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
-              >
-                Save
-              </button>
             </>
           ) : (
             <p className="text-red-500">Unscanned page.</p>
@@ -84,3 +78,12 @@ const PageData: React.FC<PageDataProps> = ({ pages, onSave }) => {
 };
 
 export default PageData;
+
+{
+  /* <button
+                onClick={() => handleSavePageData(page.id)}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
+              >
+                Save
+              </button> */
+}

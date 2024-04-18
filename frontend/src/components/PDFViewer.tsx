@@ -14,6 +14,12 @@ const PDFViewer = ({ pdfDetail, onScan }: Props) => {
   const [selectedPages, setSelectedPages] = useState<number[]>([]);
   const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
 
+  useEffect(() => {
+    if (pdfDetail && pdfDetail.pages && pdfDetail.pages.length > 1) {
+      setSelectedPages([pdfDetail.pages[1].id]);
+    }
+  }, [pdfDetail]);
+
   const togglePageSelection = (pageId: number) => {
     setSelectedPages((prev) => {
       const newSelectedPages = prev.includes(pageId)
@@ -36,7 +42,7 @@ const PDFViewer = ({ pdfDetail, onScan }: Props) => {
     : pdfDetail.pages.filter((page) => selectedPages.includes(page.id));
 
   return (
-    <div className="relative">
+    <div className="relative text-white">
       <button
         onClick={() => setIsSelectMode(!isSelectMode)}
         className="absolute top-0 left-0 m-2 text-white bg-light-gray focus:outline-none rounded-lg text-lg p-1 z-10 transition duration-300"
@@ -70,7 +76,7 @@ const PDFViewer = ({ pdfDetail, onScan }: Props) => {
                 </div>
               )}
               <img
-                src={page.thumbnail}
+                src={page.high_res_image}
                 alt={`Page ${page.thumbnail}`}
                 className="w-full h-auto rounded-lg"
               />
