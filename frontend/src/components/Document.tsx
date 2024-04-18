@@ -23,7 +23,7 @@ const ImageDisplay: React.FC<Props> = ({ imagePath, text, icon }) => {
         className="w-full h-auto mb-1 opacity-0"
       />
       <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center">
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col text-white items-center">
           {Icon && <Icon className="text-6xl text-gray-400 mb-2" />}
           <span className="text-gray-500">{text}</span>
         </div>
