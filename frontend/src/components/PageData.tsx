@@ -2,15 +2,16 @@ import React, { useState, useEffect } from "react";
 import { PDFDetail } from "../services/fileTypes";
 
 interface PageDataProps {
-  pages: PDFDetail["pages"]; // Referencing directly from PDFDetail type
-  onSave: (pageId: number, jsonOutput: any) => void; // Updated to pass relevant data only
+  pages: PDFDetail["pages"];
+  onSave: (pageId: number, jsonOutput: any) => void;
+  onEdit: (edits: { [key: number]: any }) => void;
 }
 
-const PageData: React.FC<PageDataProps> = ({ pages, onSave }) => {
+const PageData: React.FC<PageDataProps> = ({ pages, onSave, onEdit }) => {
   const [editedPages, setEditedPages] = useState<{ [key: number]: any }>({});
 
   useEffect(() => {
-    // Initialize text areas with proper height
+    // Adjust text area heights on load and when pages data changes
     const textareas = document.querySelectorAll<HTMLTextAreaElement>(
       "textarea.auto-resize"
     );
@@ -19,6 +20,11 @@ const PageData: React.FC<PageDataProps> = ({ pages, onSave }) => {
       textarea.style.height = `${textarea.scrollHeight}px`;
     });
   }, [pages]);
+
+  useEffect(() => {
+    console.log("Edited pages are now:", editedPages);
+    onEdit(editedPages); // This should be triggering on every change
+  }, [editedPages, onEdit]);
 
   const handleInputChange = (
     pageId: number,
@@ -50,7 +56,7 @@ const PageData: React.FC<PageDataProps> = ({ pages, onSave }) => {
               <div className="font-bold">Title:</div>
               <textarea
                 rows={1}
-                value={editedPages[page.id]?.title || page.json_output.title}
+                value={editedPages[page.id]?.title ?? page.json_output.title}
                 className="bg-lightest-gray mt-2 px-3 py-2 rounded mb-3 w-full auto-resize overflow-y-auto overflow-x-hidden scrollbar-webkit overflow-scroll"
                 onChange={(e) =>
                   handleInputChange(page.id, "title", e.target.value)
@@ -60,9 +66,9 @@ const PageData: React.FC<PageDataProps> = ({ pages, onSave }) => {
               <textarea
                 rows={1}
                 value={
-                  editedPages[page.id]?.content || page.json_output.content
+                  editedPages[page.id]?.content ?? page.json_output.content
                 }
-                className="bg-lightest-gray mt-2 px-3 py-2 rounded w-full auto-resize  overflow-y-auto overflow-x-hidden scrollbar-webkit overflow-scroll"
+                className="bg-lightest-gray mt-2 px-3 py-2 rounded w-full auto-resize overflow-y-auto overflow-x-hidden scrollbar-webkit overflow-scroll"
                 onChange={(e) =>
                   handleInputChange(page.id, "content", e.target.value)
                 }

@@ -10,46 +10,43 @@ export interface FileData {
 }
 
 // Interface for a page inside the `pages` array after fetching PDF details
+export interface JsonOutput {
+  title: string;
+  content: string;
+  source: string;
+}
+
+// Interface for a single page in a PDF
 export interface Page {
-  high_res_image: string | undefined;
   id: number;
-  page_number: number;
-  file: string;
+  high_res_image: string;
   thumbnail: string;
+  page_number: number;
+  gpt_cost: number;
+  documentAI_cost: number;
+  processing_time: number;
+  scanned: boolean;
+  json_output: JsonOutput; // Single JSON Output object, not an array
 }
 
 // Interface for a PDF object after fetching specific PDF details
 export interface PDFDetail {
   id: number;
   name: string;
-  pages: Array<{
-    id: number;
-    high_res_image: string;
-    thumbnail: string;
-    page_number: number;
-    gpt_cost: number;
-    documentAI_cost: number;
-    processing_time: number;
-    scanned: boolean;
-    json_output: Array<{
-      title: string;
-      content: string;
-      source: string;
-    }>
-  }>;
+  pages: Page[]; // Array of Page objects
 }
 
-export interface JsonOutput {
-  title: string;
-  content: string;
-}
-
+// Interface for a single processed page, typically returned from a scanning process
 export interface ProcessedPage {
-  page_id: number;
+  page_id: number; // Ensure the type matches expected inputs (string vs number)
   json_output: JsonOutput;
-  cost: number;
+  gpt_cost: number;
+  documentAI_cost: number;
+  processing_time: number;
+  scanned: boolean;
 }
 
+// Interface for the response containing processed pages
 export interface ProcessedPagesResponse {
   status: string;
   processed_pages: ProcessedPage[];

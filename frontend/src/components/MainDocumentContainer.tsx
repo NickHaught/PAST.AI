@@ -4,9 +4,12 @@ import InputCard from "./InputCard";
 import OutputCard from "./OutputCard";
 import { Resizable, ResizeCallbackData } from "react-resizable";
 import { FaArrowsAltH } from "react-icons/fa";
-import { PDFDetail } from "../services/fileTypes";
+import { PDFDetail, ProcessedPagesResponse } from "../services/fileTypes";
 
 const MainDocumentContainer = () => {
+  const [scanResults, setScanResults] = useState<ProcessedPagesResponse | null>(
+    null
+  );
   const initialWidth = window.innerWidth * 0.7;
   const [width, setWidth] = useState(initialWidth);
   const [minConstraints, setMinConstraints] = useState<[number, number]>([
@@ -22,8 +25,7 @@ const MainDocumentContainer = () => {
   const handlePageSelection = (pageIds: number[]) => {
     console.log("Selected page IDs:", pageIds);
     setSelectedPageIds(pageIds);
-};
-
+  };
 
   const clearSelectedPDF = () => {
     setSelectedPDF(null);
@@ -53,6 +55,11 @@ const MainDocumentContainer = () => {
     setWidth(data.size.width);
   };
 
+  const updateScanResults = (results: ProcessedPagesResponse | null) => {
+    setScanResults(results);
+    console.log("Scan results received and updated in parent:", results);
+  };
+
   return (
     <div className="flex">
       <Resizable
@@ -70,12 +77,17 @@ const MainDocumentContainer = () => {
             onPDFSelect={setSelectedPDF}
             clearSelectedPDF={clearSelectedPDF}
             onScan={handlePageSelection}
+            updateScanResults={updateScanResults}
           />
         </div>
       </Resizable>
 
       <div className="flex">
-        <OutputCard selectedPDF={selectedPDF} selectedPageIds={selectedPageIds}/>
+        <OutputCard
+          selectedPDF={selectedPDF}
+          selectedPageIds={selectedPageIds}
+          scanResults={scanResults}
+        />
       </div>
     </div>
   );

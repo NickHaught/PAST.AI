@@ -8,17 +8,32 @@ import PanelOverlay from "./PanelOverlay";
 import PDFList from "./PDFList";
 import PDFViewer from "./PDFViewer";
 import StatusMessage from "./StatusMessage";
-import { FileData, PDFDetail } from "../services/fileTypes";
-import { fetchPDFDetails, fetchPDFs, processPages } from "../services/apiServices";
+import {
+  FileData,
+  PDFDetail,
+  ProcessedPagesResponse,
+} from "../services/fileTypes";
+import {
+  fetchPDFDetails,
+  fetchPDFs,
+  processPages,
+} from "../services/apiServices";
 
 interface Props {
   width: number;
   onPDFSelect: (pdfDetail: PDFDetail) => void;
   clearSelectedPDF: () => void;
   onScan: (pageIds: number[]) => void;
+  updateScanResults: (results: ProcessedPagesResponse | null) => void;
 }
 
-const InputCard = ({ width, onPDFSelect, clearSelectedPDF, onScan }: Props) => {
+const InputCard = ({
+  width,
+  onPDFSelect,
+  clearSelectedPDF,
+  onScan,
+  updateScanResults,
+}: Props) => {
   const [view, setView] = useState<"list" | "viewer" | null>(null);
   const [files, setFiles] = useState<FileData[]>([]);
   const [selectedPDF, setSelectedPDF] = useState<FileData | null>(null);
@@ -32,8 +47,11 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF, onScan }: Props) => {
   const [nextPageUrl, setNextPageUrl] = useState<string | null>(null);
   const [prevPageUrl, setPrevPageUrl] = useState<string | null>(null);
 
-
-  const handleUploadComplete = (input: FileData[] | { files: FileData[], next: string | null, prev: string | null }) => {
+  const handleUploadComplete = (
+    input:
+      | FileData[]
+      | { files: FileData[]; next: string | null; prev: string | null }
+  ) => {
     let files, next, prev;
     if (Array.isArray(input)) {
       files = input;
@@ -41,7 +59,7 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF, onScan }: Props) => {
     } else {
       ({ files, next, prev } = input);
     }
-    
+
     console.log("Files uploaded successfully:", files);
     setFiles(files);
     setNextPageUrl(next);
@@ -95,9 +113,10 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF, onScan }: Props) => {
 
   const handleScan = async (selectedPages: number[]) => {
     console.log("(INPUT) Selected pages for scanning:", selectedPages);
-    const pdfDetails = await processPages(selectedPages);
-    console.log("PDF details fetched successfully:", pdfDetails);
-    
+    const output = await processPages(selectedPages);
+
+    console.log("PDF details fetched successfully:", output);
+    updateScanResults(output);
   };
 
   const handlePageSelection = (pageIds: number[]) => {
