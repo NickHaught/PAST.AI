@@ -12,6 +12,7 @@ const SaveButton = ({ className, onSave }: Props) => {
       <button
         className={`text-white flex items-center bg-light-gray space-x-2 text-lg py-1 px-2 rounded-lg hover:border-blue focus:outline-none ${className}`}
         onClick={onSave}  // Use onSave passed from the parent component
+        title={"Save/Validate Data"}
       >
         <FaRegSave className="text-green-500" />
       </button>

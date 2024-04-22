@@ -22,7 +22,7 @@ const OpenDatabaseButton = ({
     console.log("Open Database Button Clicked");
     setLoading(true);
     try {
-      const response = await fetchDocuments(2, false); // Default parameters are used here
+      const response = await fetchDocuments(40, false); // Default parameters are used here
       console.log("Documents fetched successfully:", response);
       if (response.results.length === 0) {
         setStatusMessage({
@@ -53,6 +53,7 @@ const OpenDatabaseButton = ({
   return (
     <button
       className={`text-white flex items-center bg-light-gray space-x-2 text-sm py-1 px-2 rounded-lg hover:border-blue focus:outline-none ${className}`}
+      title="Open Database"
       onClick={handleButtonClick}
     >
       <FaDatabase className="text-white" />

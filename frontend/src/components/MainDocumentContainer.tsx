@@ -21,6 +21,7 @@ const MainDocumentContainer = () => {
   ]);
   const [selectedPDF, setSelectedPDF] = useState<PDFDetail | null>(null);
   const [selectedPageIds, setSelectedPageIds] = useState<number[]>([]);
+  const [status, setScanStatus] = useState<boolean>(false);
 
   const handlePageSelection = (pageIds: number[]) => {
     console.log("Selected page IDs:", pageIds);
@@ -60,6 +61,11 @@ const MainDocumentContainer = () => {
     console.log("Scan results received and updated in parent:", results);
   };
 
+  const updateScanStatus = (status: boolean) => {
+    setScanStatus(status);
+    console.log("Scan status updated in parent:", status);
+  }
+
   return (
     <div className="flex">
       <Resizable
@@ -78,6 +84,7 @@ const MainDocumentContainer = () => {
             clearSelectedPDF={clearSelectedPDF}
             onScan={handlePageSelection}
             updateScanResults={updateScanResults}
+            updateScanStatus={updateScanStatus}
           />
         </div>
       </Resizable>
@@ -87,6 +94,7 @@ const MainDocumentContainer = () => {
           selectedPDF={selectedPDF}
           selectedPageIds={selectedPageIds}
           scanResults={scanResults}
+          scanStatus={status}
         />
       </div>
     </div>

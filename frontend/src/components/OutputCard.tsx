@@ -11,12 +11,14 @@ interface OutputCardProps {
   selectedPDF: PDFDetail | null;
   selectedPageIds: number[];
   scanResults: ProcessedPagesResponse | null;
+  scanStatus: boolean;
 }
 
 const OutputCard = ({
   selectedPDF,
   selectedPageIds,
   scanResults,
+  scanStatus
 }: OutputCardProps) => {
   const [processedData, setProcessedData] = useState<PDFDetail | null>(null);
   const [allEdits, setAllEdits] = useState<{ [key: number]: any }>({});
@@ -50,7 +52,12 @@ const OutputCard = ({
     <div className="flex flex-col bg-gray rounded-xl p-6">
       <h1>Output</h1>
       <div className="flex justify-between items-center">
-        <InnerNavbar navItems={["Editor"]} />
+      <InnerNavbar
+  navItems={["Editor"]}
+  onEditorClick={() => console.log('Editor clicked')}
+  activeView="editor"
+  disableEditor={!processedData || selectedPageIds.length === 0} // Disable "Editor" if no processed data or no pages are selected
+/>
         <SaveButton onSave={handleSaveAllPages} />
       </div>
 
@@ -64,6 +71,7 @@ const OutputCard = ({
                 )}
                 onSave={handleSaveAllPages}
                 onEdit={handleEdit}
+                scanStatus={scanStatus}
               />
               <ImageDisplay imagePath="Test_page_1_thumbnail.png" />
             </>

@@ -7,6 +7,7 @@ export interface FileData {
   pages: number[];
   thumbnails: string[];
   error?: string;
+  scanned: boolean;
 }
 
 // Interface for a page inside the `pages` array after fetching PDF details
