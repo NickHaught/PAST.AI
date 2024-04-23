@@ -34,7 +34,7 @@ const InputCard = ({
   clearSelectedPDF,
   onScan,
   updateScanResults,
-  updateScanStatus
+  updateScanStatus,
 }: Props) => {
   const [view, setView] = useState<"list" | "viewer" | null>(null);
   const [files, setFiles] = useState<FileData[]>([]);
@@ -51,7 +51,6 @@ const InputCard = ({
   const [status, setScanStatus] = useState<boolean>(false);
 
   const handleUploadComplete = (
-    
     input:
       | FileData[]
       | { files: FileData[]; next: string | null; prev: string | null }
@@ -121,7 +120,7 @@ const InputCard = ({
     console.log("(INPUT) Selected pages for scanning:", selectedPages);
 
     // Simulate delay
-    await new Promise(resolve => setTimeout(resolve, 5000)); // 5000 ms = 5 seconds delay
+    await new Promise((resolve) => setTimeout(resolve, 5000)); // 5000 ms = 5 seconds delay
 
     const output = await processPages(selectedPages);
     console.log("PDF details fetched successfully:", output);
@@ -129,7 +128,7 @@ const InputCard = ({
     setScanStatus(false);
     updateScanStatus(false);
     updateScanResults(output);
-};
+  };
 
   const handlePageSelection = (pageIds: number[]) => {
     console.log("Sending to Main", selectedPages);
@@ -157,24 +156,25 @@ const InputCard = ({
         )}
       </div>
       <div className="flex justify-between items-center">
-      <InnerNavbar
-  navItems={["Home", "PDF"]}
-  onHomeClick={() => {
-    if (files.length > 0) {  // Ensure Home is only clickable when there are files
-      setView("list");
-      clearSelectedPDF();
-    }
-  }}
-  onPDFClick={() => {
-    if (selectedPDF) {
-      setView("viewer");
-      onPDFSelect(selectedPDF);
-    }
-  }}
-  activeView={view}
-  disableHome={files.length === 0}  // Disable Home button when there are no files
-  disablePDF={!selectedPDF}  // Disable PDF button when there is no selected PDF
-/>
+        <InnerNavbar
+          navItems={["Home", "PDF"]}
+          onHomeClick={() => {
+            if (files.length > 0) {
+              // Ensure Home is only clickable when there are files
+              setView("list");
+              clearSelectedPDF();
+            }
+          }}
+          onPDFClick={() => {
+            if (selectedPDF) {
+              setView("viewer");
+              onPDFSelect(selectedPDF);
+            }
+          }}
+          activeView={view}
+          disableHome={files.length === 0} // Disable Home button when there are no files
+          disablePDF={!selectedPDF} // Disable PDF button when there is no selected PDF
+        />
         <div className="flex">
           <OpenFolderButton
             onUploadComplete={handleUploadComplete}
@@ -182,17 +182,17 @@ const InputCard = ({
             setLoading={setLoading}
           />
           <OpenDatabaseButton
-  onDocumentsFetched={(data) => {
-    handleUploadComplete(data);
-    clearSelectedPDF();
-    setStatusMessage({
-      type: "success",
-      message: "PDFs fetched successfully from the database.",
-    });
-  }}
-  setLoading={setLoading}
-  setStatusMessage={setStatusMessage}
-/>
+            onDocumentsFetched={(data) => {
+              handleUploadComplete(data);
+              clearSelectedPDF();
+              setStatusMessage({
+                type: "success",
+                message: "PDFs fetched successfully from the database.",
+              });
+            }}
+            setLoading={setLoading}
+            setStatusMessage={setStatusMessage}
+          />
         </div>
       </div>
       <InnerContainer loading={loading}>

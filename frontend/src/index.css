@@ -29,7 +29,7 @@ a:hover {
 
 
 h1 {
-  @apply text-2xl leading-tight text-left pb-6 font-bold text-off-white;
+  @apply text-2xl leading-tight text-left pb-6 font-bold text-white;
 }
 
 button {
