@@ -20,6 +20,7 @@ import {
 } from "../services/apiServices";
 
 interface Props {
+  onToggleAuto: () => void;
   width: number;
   onPDFSelect: (pdfDetail: PDFDetail) => void;
   clearSelectedPDF: () => void;
@@ -35,6 +36,7 @@ const InputCard = ({
   onScan,
   updateScanResults,
   updateScanStatus,
+  onToggleAuto,
 }: Props) => {
   const [view, setView] = useState<"list" | "viewer" | null>(null);
   const [files, setFiles] = useState<FileData[]>([]);
@@ -209,6 +211,7 @@ const InputCard = ({
       <PanelOverlay
         onPrev={handlePrev}
         onNext={handleNext}
+        onToggleAuto={onToggleAuto}
         className="absolute bottom-[40px] left-1/2 transform -translate-x-1/2"
         onScan={
           selectedPDF

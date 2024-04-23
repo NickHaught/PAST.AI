@@ -6,7 +6,11 @@ import { Resizable, ResizeCallbackData } from "react-resizable";
 import { FaArrowsAltH } from "react-icons/fa";
 import { PDFDetail, ProcessedPagesResponse } from "../services/fileTypes";
 
-const MainDocumentContainer = () => {
+interface MainDocumentContainerProps {
+  onToggleAuto: () => void;
+}
+
+const MainDocumentContainer = ({ onToggleAuto }:MainDocumentContainerProps) => {
   const [scanResults, setScanResults] = useState<ProcessedPagesResponse | null>(
     null
   );
@@ -79,6 +83,7 @@ const MainDocumentContainer = () => {
       >
         <div className="mr-4">
           <InputCard
+            onToggleAuto={onToggleAuto}
             width={width}
             onPDFSelect={setSelectedPDF}
             clearSelectedPDF={clearSelectedPDF}

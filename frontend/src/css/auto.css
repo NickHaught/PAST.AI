@@ -1,0 +1,62 @@
+@keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .animate-fadeIn {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  .animate-flash {
+    animation: flash 1s infinite;
+  }
+
+  @keyframes borderAnim {
+    0% {
+        border-color: blue;
+    }
+    50% {
+        border-color: lightblue;
+    }
+    100% {
+        border-color: blue;
+    }
+}
+
+.border-animate {
+    animation: borderAnim 2s linear infinite;
+    border: 2px solid blue;
+}
+
+.popup-modal-glow {
+    position: relative;
+    background: #1a1a1a;
+    padding: 1px;
+    border-radius: 10px;
+    z-index: 0;
+}
+
+.popup-modal-glow:before {
+    content: '';
+    background: linear-gradient(45deg, #a739cf, #337bd4, #4681F4, #4681F4, #719cf2);
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background-size: 200%;
+    z-index: -1;
+    filter: blur(5px);
+    animation: glowing 20s linear infinite;
+    border-radius: 12px;
+}
+
+@keyframes glowing {
+    0% { background-position: 0 0; }
+    50% { background-position: 400% 0; }
+    100% { background-position: 0 0; }
+}

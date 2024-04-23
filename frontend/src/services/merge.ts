@@ -8,6 +8,7 @@ export const mergeScanResultsIntoPDFDetail = (
     const updatedPages = pdfDetail.pages.map(page => {
         // Find the corresponding processed page
         const processedPage = processedResponse.processed_pages.find(p => p.page_id === page.id);
+        console.log("processedPage", processedPage)
         if (processedPage) {
             // Update json_output with new scan results
             return {
@@ -20,6 +21,7 @@ export const mergeScanResultsIntoPDFDetail = (
     });
 
     // Return the updated PDFDetail with updated pages
+    console.log("updatedPages", updatedPages)
     return {
         ...pdfDetail,
         pages: updatedPages

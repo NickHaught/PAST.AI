@@ -3,12 +3,22 @@ import MainDocumentContainer from "./components/MainDocumentContainer";
 import Sidebar, { SidebarItem } from "./components/Sidebar";
 import { ScrollText, Database, LineChart, Settings } from "lucide-react";
 import { uploadUrlContext } from "./contexts/Context";
+import { useState } from "react";
+import PopupModal from './components/PopupModal';
 
 function App() {
+  const [showPopup, setShowPopup] = useState(false);
+
+  const handleToggleAuto = () => {
+    setShowPopup(!showPopup);
+  };
+
+
   return (
     <>
       <uploadUrlContext.Provider value="http://localhost:8000/api/upload/">
-        <main className="flex h-[96vh] space-x-4 p-6">
+     
+        <main className={`flex h-[96vh] space-x-4 p-6 ${showPopup ? 'opacity-30' : 'opacity-100'}`}>
           <Sidebar>
             <SidebarItem
               icon={<ScrollText size={20} />}
@@ -36,8 +46,9 @@ function App() {
             />
           </Sidebar>
 
-          <MainDocumentContainer />
+          <MainDocumentContainer onToggleAuto={handleToggleAuto}/>
         </main>
+        {showPopup && <PopupModal onClose={() => setShowPopup(false)} />}
       </uploadUrlContext.Provider>
     </>
   );
