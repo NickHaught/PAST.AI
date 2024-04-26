@@ -49,7 +49,7 @@ const PDFViewer = ({ pdfDetail, onScan }: Props) => {
         onClick={() => setIsSelectMode(!isSelectMode)}
         className="absolute top-0 left-0 m-2 text-white bg-light-gray hover:border-blue focus:outline-none rounded-lg text-lg p-1 z-10 transition duration-300"
       >
-        {isSelectMode ? <IoGrid /> : <FaSquare />}
+        {isSelectMode ?  <FaSquare />: <IoGrid />}
       </button>
       <button
         onClick={toggleDropdown}

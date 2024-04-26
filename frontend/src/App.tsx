@@ -18,7 +18,7 @@ function App() {
     <>
       <uploadUrlContext.Provider value="http://localhost:8000/api/upload/">
      
-        <main className={`flex h-[96vh] space-x-4 p-6 ${showPopup ? 'opacity-30' : 'opacity-100'}`}>
+        <main className={`flex h-[96vh] space-x-4 p-6 transition-opacity duration-300 ease-in-out ${showPopup ? 'opacity-30' : 'opacity-100'}`}>
           <Sidebar>
             <SidebarItem
               icon={<ScrollText size={20} />}

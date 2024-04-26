@@ -1,77 +1,85 @@
-import { FC, useState } from "react";
-import '../css/auto.css';
+import { FC, useEffect, useState } from "react";
+import { BsFillInfoSquareFill } from "react-icons/bs";
+import "../css/auto.css";
 
 interface PopupModalProps {
   onClose: () => void;
 }
 
 const PopupModal: FC<PopupModalProps> = ({ onClose }) => {
-    const [isActive, setIsActive] = useState(false);
+  const [isActive, setIsActive] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [showInfo, setShowInfo] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+  const [animateOut, setAnimateOut] = useState(false);
 
-    const handleStart = () => {
-        setIsActive(true);
-        // Simulate a backend call
-        setTimeout(() => {
-            console.log("Auto mode activated"); // Simulate backend response
-            // You can handle state updates based on the response here
-        }, 1000); // Simulate a delay
-    };
+  const handleStart = () => {
+    setIsActive(true);
+    setShowInfo(false);
+    setTimeout(() => {
+      setStatusMessage("Database accessed!");
+      setShowDetails(true);
+      setTimeout(() => {
+        setStatusMessage("✔ Database accessed!");
+      }, 2000);
+    }, 1000);
+  };
 
-    return (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex justify-center items-center z-50 transition-opacity duration-300 ease-in-out">
-            <div className="popup-modal-glow">
-          <div className={`bg-gray glow p-4 rounded-xl shadow-xl transition-opacity duration-300 ease-in-out animate-fadeIn p-10 ${isActive ? "border-animate" : ""}`}>
-            <div className="text-center mb-4 text-white text-lg font-semibold">{isActive ? "Auto Mode Activated" : "Activate Auto Mode"}</div>
-            <h2 className=" text-white text-center">All unscanned PDFs will be scanned in the database.</h2>
-            <div className="text-sm text-gray-300 text-center mt-2">Estimated Time: ~3 minutes</div>
-            <div className="flex justify-center space-x-4 mt-4">
-              {!isActive && (
-                <button className="bg-green-500 text-sm hover:bg-green-700 text-white py-2 px-4 rounded-lg" onClick={handleStart}>
-                  Start
-                </button>
-              )}
-              <button className="bg-red-500 text-sm hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg" onClick={onClose}>
-                Cancel
+  const handleClose = () => {
+    setAnimateOut(true);
+  };
+
+  useEffect(() => {
+    if (animateOut) {
+      const timer = setTimeout(onClose, 100); // Ensure the timer matches the animation duration
+      return () => clearTimeout(timer);
+    }
+  }, [animateOut, onClose]);
+
+  return (
+    <div className={`fixed inset-0 bg-gray-600 bg-opacity-75 flex justify-center items-center z-50 transition-opacity duration-300 ease-in-out ${animateOut ? 'scale-out' : ''}`}>
+      <div className="popup-modal-glow relative fade-in-scale-up">
+        <div className={`bg-gray glow p-10 rounded-xl shadow-xl transition-opacity duration-300 ease-in-out overflow-auto max-h-[80vh]`}>
+          {!isActive && (
+            <span className="absolute top-3 right-3 text-blue-500 hover:text-blue-700 cursor-pointer z-50" onClick={() => setShowInfo(!showInfo)} title="Info">
+              <BsFillInfoSquareFill size={16} />
+            </span>
+          )}
+          <div className="text-center mb-4 text-blue text-lg font-semibold">
+            {isActive ? "Auto Mode Activated" : "Activate Auto Mode"}
+          </div>
+          {!isActive && (
+            <h2 className="text-white text-center">
+              All unscanned PDFs will be scanned in the database.
+            </h2>
+          )}
+          {showDetails && (
+            <>
+              <h3 className="text-lg text-blue-400 text-center">Total Unscanned Documents</h3>
+              <div className="text-sm text-gray-300 text-center">Estimated Time: ~3 minutes</div>
+            </>
+          )}
+          <div className="text-white text-center">{statusMessage}</div>
+          <div className="flex justify-center space-x-4 mt-4">
+            {!isActive && (
+              <button className="bg-green-500 text-sm hover:bg-green-700 text-white py-2 px-4 rounded-lg" onClick={handleStart}>
+                Start
               </button>
+            )}
+            <button className="bg-red-500 text-sm hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg" onClick={handleClose}>
+              Cancel
+            </button>
+          </div>
+          {showInfo && (
+            <div className="mt-4 p-4 bg-white text-black rounded">
+              Detailed information about the auto scanning process.
             </div>
-          </div>
-          </div>
+          )}
         </div>
-      );
+      </div>
+    </div>
+  );
 };
 
 export default PopupModal;
 
-
-// const [isActive, setIsActive] = useState(false);
-
-//     const handleStart = () => {
-//         setIsActive(true);
-//         setTimeout(() => {
-//             console.log("Auto mode activated");
-//         }, 1000);
-//     };
-
-//     return (
-//         <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex justify-center items-center z-50">
-//           <div className="popup-modal-glow">
-//             <div className="text-white text-lg font-semibold">
-//                 {isActive ? "Auto Mode Activated" : "Active Auto Mode"}
-//             </div>
-//             <div className="text-sm text-gray-300 mt-2">Estimated Time: ~3 minutes</div>
-//             <div className="flex justify-center space-x-4 mt-4">
-//               {!isActive && (
-//                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={handleStart}>
-//                   Start
-//                 </button>
-//               )}
-//               <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onClick={onClose}>
-//                 Cancel
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       );
-// };
-
-// export default PopupModal;
