@@ -20,11 +20,20 @@ export default {
         'dark-dark-gray': '#1a1a1a',
         'validgreen': '#159947',
         'light-green': '#49B265',
+        'purple':' #a739cf',
       },
       maxHeight: {
         'screen-75': '75vh',
         'screen-85': '85vh',
         'screen-custom': '100vh', // Adjust 150px as needed
+      },
+      width: {
+        '120':'30rem',
+        '104':'26rem',
+      },
+      height: {
+        '100':'27rem',
+        '104':'26rem',
       },
     },
   },
