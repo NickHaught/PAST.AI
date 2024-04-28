@@ -5,6 +5,7 @@ import OutputCard from "./OutputCard";
 import { Resizable, ResizeCallbackData } from "react-resizable";
 import { FaArrowsAltH } from "react-icons/fa";
 import { PDFDetail, ProcessedPagesResponse } from "../services/fileTypes";
+import "../css/transitions.css";
 
 interface MainDocumentContainerProps {
   onToggleAuto: () => void;
@@ -71,7 +72,7 @@ const MainDocumentContainer = ({ onToggleAuto }:MainDocumentContainerProps) => {
   }
 
   return (
-    <div className="flex">
+    <div className="flex animate-fadeIn">
       <Resizable
         width={width}
         height={300}

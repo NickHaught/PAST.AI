@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { BsFillInfoSquareFill } from "react-icons/bs";
-import "../css/auto.css";
+import "../css/transitions.css";
 import Lottie from "react-lottie";
 import animationData from "../lotties/scan.json";
 import Loader from "./Loader";
@@ -41,10 +41,10 @@ const PopupModal: FC<PopupModalProps> = ({ onClose }) => {
     setTimeout(() => {
       setLoader(false);
       setStatusMessage("Database accessed!");
-      setDimensions({ width: "600px", height: "600px" });
+      setDimensions({ width: "600px", height: "550px" });
       setAccess(true);
       setShowDetails(true);
-    }, 6000);
+    }, 1000);
   };
 
   const handleClose = () => {
@@ -76,7 +76,7 @@ const PopupModal: FC<PopupModalProps> = ({ onClose }) => {
         >
           {!isActive && (
             <span
-              className="absolute top-3 right-3 text-blue-500 hover:text-blue-700 cursor-pointer z-50"
+              className="absolute top-3 right-3 text-white hover:text-blue-700 cursor-pointer z-50"
               onClick={() => {
                 if (showInfo) {
                   // Start the scale-out animation
@@ -99,40 +99,56 @@ const PopupModal: FC<PopupModalProps> = ({ onClose }) => {
               <BsFillInfoSquareFill size={16} />
             </span>
           )}
-          <div className="text-center mb-2 text-blue text-lg font-semibold">
-            {isActive ? "Auto Mode Activated" : "Auto Mode"}
+          <div className="relative">
+            <div className="text-center mb-2 text-blue text-lg font-semibold">
+              {isActive ? "Auto Mode Activated" : "Auto Mode"}
+            </div>
+            {!isActive && (
+              <h2 className="text-white text-center">
+                All unscanned PDFs will be scanned in the database.
+              </h2>
+            )}
+            {showDetails && (
+              <div className="flex  justify-center space-x-5">
+                {/* Animations and Scanning Status in One Column */}
+                <div className="flex flex-col items-center">
+                  {" "}
+                  {/* This column centers its children vertically and horizontally */}
+                  <div className="relative">
+                  <div style={{ pointerEvents: "none", marginTop: "-100px"}}>
+                    <Lottie options={defaultOptions} height={530} width={250} />
+                  </div>
+                  <div className="flex items-center mt-[-100px] pl-20 pb-2">
+                    {" "}
+                    {/* Additional margin-top to separate the Lottie and the loader/text */}
+                    <Loader />
+                    <div className="ml-2 text-white">Scanning</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Text Indicators on the Right */}
+                <div className="flex flex-col items-start pt-6 pr-2">
+                  <div className="text text-white">Total Unscanned</div>
+                  <div className="text-5xl text-white font-bold">
+                    43,821
+                  </div>{" "}
+                  {/* Example number for unscanned */}
+                  <div className=" text-white mt-4">Total Scanned</div>
+                  <div className="text-5xl text-white font-bold">456</div>{" "}
+                  {/* Example number for scanned */}
+
+                  <div className=" text-white mt-4">Cummulative Cost</div>
+                  <div className=" text-white">$20.0</div>{" "}
+
+                  <div className=" text-white mt-4">Esimated Time</div>
+                  <div className=" text-white">~ 3 hours</div>{" "}
+
+                  
+                </div>
+              </div>
+            )}
           </div>
-          {!isActive && (
-            <h2 className="text-white text-center">
-              All unscanned PDFs will be scanned in the database.
-            </h2>
-          )}
-          {showDetails && (
-  <div className="flex items-center justify-center space-x-10">
-    {/* Animations and Scanning Status in One Column */}
-    <div className="flex flex-col items-center">  {/* This column centers its children vertically and horizontally */}
-      <div style={{ pointerEvents: "none" }} className="relative w-44 h-44 overflow-hidden">
-        <Lottie options={defaultOptions} height={300} width={300}/>
-      </div>
-      <div className="flex items-center mt-4">  {/* Additional margin-top to separate the Lottie and the loader/text */}
-        <Loader />
-        <div className="ml-2 text-white">Scanning</div>
-      </div>
-    </div>
-    
-    {/* Text Indicators on the Right */}
-    <div className="flex flex-col items-start">
-      <div className="text text-white">Total Unscanned</div>
-      <div className="text-5xl text-white font-bold">43821</div> {/* Example number for unscanned */}
-      <div className=" text-white mt-4">Total Scanned</div>
-      <div className="text-5xl text-white font-bold">456</div> {/* Example number for scanned */}
-    </div>
-  </div>
-)}
-
-
-          
-          
 
           <>
             {loader ? (
@@ -154,7 +170,7 @@ const PopupModal: FC<PopupModalProps> = ({ onClose }) => {
               </button>
             )}
             <button
-              className="bg-red-500 text-sm hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg"
+              className="bg-red-500 text-sm hover:bg-red-700 text-white py-2 px-4 rounded-lg"
               onClick={handleClose}
             >
               Cancel

@@ -3,6 +3,7 @@ export default {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
+    'node_modules/preline/dist/*.js',
   ],
   theme: {
     extend: {
@@ -21,6 +22,7 @@ export default {
         'validgreen': '#159947',
         'light-green': '#49B265',
         'purple':' #a739cf',
+        'white-gray': '#ABABAB',
       },
       maxHeight: {
         'screen-75': '75vh',
@@ -59,6 +61,8 @@ export default {
         },
       }
       addUtilities(newUtilities, ["responsive", "hover"])
-    }
+    },
+    require('@tailwindcss/forms'),
+    require('preline/plugin'),
   ],
 }
