@@ -3,7 +3,7 @@
 from rest_framework import viewsets, status
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from django.core.files.storage import default_storage
 from .models import PDFFile, PDFPage, GPTResponse, AppKeys, Settings
 from .serializers import PDFFileSerializer, PDFPageSerializer, AppKeysSerializer, SettingsSerializer
@@ -19,6 +19,22 @@ from django.utils import timezone
 
 
 logger = logging.getLogger("django")
+
+class PostOnlyModelViewSet(viewsets.ModelViewSet):
+    def list(self, request, *args, **kwargs):
+        return Response({"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def retrieve(self, request, *args, **kwargs):
+        return Response({"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def update(self, request, *args, **kwargs):
+        return Response({"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def partial_update(self, request, *args, **kwargs):
+        return Response({"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def destroy(self, request, *args, **kwargs):
+        return Response({"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 def assign_method_with_name(original_method, new_method):
     @wraps(original_method)
