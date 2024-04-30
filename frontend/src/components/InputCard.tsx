@@ -8,17 +8,36 @@ import PanelOverlay from "./PanelOverlay";
 import PDFList from "./PDFList";
 import PDFViewer from "./PDFViewer";
 import StatusMessage from "./StatusMessage";
-import { FileData, PDFDetail } from "../services/fileTypes";
-import { fetchPDFDetails, fetchPDFs, processPages } from "../services/apiServices";
+import {
+  FileData,
+  PDFDetail,
+  ProcessedPagesResponse,
+} from "../services/fileTypes";
+import {
+  fetchPDFDetails,
+  fetchPDFs,
+  processPages,
+} from "../services/apiServices";
 
 interface Props {
+  onToggleAuto: () => void;
   width: number;
   onPDFSelect: (pdfDetail: PDFDetail) => void;
   clearSelectedPDF: () => void;
   onScan: (pageIds: number[]) => void;
+  updateScanResults: (results: ProcessedPagesResponse | null) => void;
+  updateScanStatus: (status: boolean) => void;
 }
 
-const InputCard = ({ width, onPDFSelect, clearSelectedPDF, onScan }: Props) => {
+const InputCard = ({
+  width,
+  onPDFSelect,
+  clearSelectedPDF,
+  onScan,
+  updateScanResults,
+  updateScanStatus,
+  onToggleAuto,
+}: Props) => {
   const [view, setView] = useState<"list" | "viewer" | null>(null);
   const [files, setFiles] = useState<FileData[]>([]);
   const [selectedPDF, setSelectedPDF] = useState<FileData | null>(null);
@@ -31,9 +50,13 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF, onScan }: Props) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [nextPageUrl, setNextPageUrl] = useState<string | null>(null);
   const [prevPageUrl, setPrevPageUrl] = useState<string | null>(null);
+  const [status, setScanStatus] = useState<boolean>(false);
 
-
-  const handleUploadComplete = (input: FileData[] | { files: FileData[], next: string | null, prev: string | null }) => {
+  const handleUploadComplete = (
+    input:
+      | FileData[]
+      | { files: FileData[]; next: string | null; prev: string | null }
+  ) => {
     let files, next, prev;
     if (Array.isArray(input)) {
       files = input;
@@ -41,7 +64,7 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF, onScan }: Props) => {
     } else {
       ({ files, next, prev } = input);
     }
-    
+
     console.log("Files uploaded successfully:", files);
     setFiles(files);
     setNextPageUrl(next);
@@ -94,10 +117,19 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF, onScan }: Props) => {
   };
 
   const handleScan = async (selectedPages: number[]) => {
+    setScanStatus(true);
+    updateScanStatus(true); // Assuming updateScanStatus expects a boolean
     console.log("(INPUT) Selected pages for scanning:", selectedPages);
-    const pdfDetails = await processPages(selectedPages);
-    console.log("PDF details fetched successfully:", pdfDetails);
-    
+
+    // Simulate delay
+    await new Promise((resolve) => setTimeout(resolve, 5000)); // 5000 ms = 5 seconds delay
+
+    const output = await processPages(selectedPages);
+    console.log("PDF details fetched successfully:", output);
+
+    setScanStatus(false);
+    updateScanStatus(false);
+    updateScanResults(output);
   };
 
   const handlePageSelection = (pageIds: number[]) => {
@@ -129,11 +161,21 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF, onScan }: Props) => {
         <InnerNavbar
           navItems={["Home", "PDF"]}
           onHomeClick={() => {
-            setView("list");
-            clearSelectedPDF();
+            if (files.length > 0) {
+              // Ensure Home is only clickable when there are files
+              setView("list");
+              clearSelectedPDF();
+            }
           }}
-          onPDFClick={() => selectedPDF && setView("viewer")}
+          onPDFClick={() => {
+            if (selectedPDF) {
+              setView("viewer");
+              onPDFSelect(selectedPDF);
+            }
+          }}
           activeView={view}
+          disableHome={files.length === 0} // Disable Home button when there are no files
+          disablePDF={!selectedPDF} // Disable PDF button when there is no selected PDF
         />
         <div className="flex">
           <OpenFolderButton
@@ -142,7 +184,14 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF, onScan }: Props) => {
             setLoading={setLoading}
           />
           <OpenDatabaseButton
-            onDocumentsFetched={handleUploadComplete} // Reuse existing handler or create a new one if needed
+            onDocumentsFetched={(data) => {
+              handleUploadComplete(data);
+              clearSelectedPDF();
+              setStatusMessage({
+                type: "success",
+                message: "PDFs fetched successfully from the database.",
+              });
+            }}
             setLoading={setLoading}
             setStatusMessage={setStatusMessage}
           />
@@ -162,6 +211,7 @@ const InputCard = ({ width, onPDFSelect, clearSelectedPDF, onScan }: Props) => {
       <PanelOverlay
         onPrev={handlePrev}
         onNext={handleNext}
+        onToggleAuto={onToggleAuto}
         className="absolute bottom-[40px] left-1/2 transform -translate-x-1/2"
         onScan={
           selectedPDF

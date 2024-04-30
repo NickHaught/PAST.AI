@@ -5,6 +5,7 @@ interface PanelOverlayProps {
   onPrev: () => void;
   onNext: () => void;
   onScan?: () => void;
+  onToggleAuto: () => void;
   className: string;
 }
 
@@ -29,6 +30,7 @@ const PanelOverlay = ({
   onPrev,
   onNext,
   onScan,
+  onToggleAuto,
   className,
 }: PanelOverlayProps) => {
   return (
@@ -49,7 +51,7 @@ const PanelOverlay = ({
       </div>
 
       <div className="flex-auto text-center">
-        <Button additionalClasses="glow-on-hover">Auto</Button>
+        <Button onClick={onToggleAuto} additionalClasses="glow-on-hover">Auto</Button>
       </div>
       <Button
         onClick={() => onScan && onScan()}

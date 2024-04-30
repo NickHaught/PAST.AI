@@ -1,21 +1,36 @@
 import "./App.css";
-import MainDocumentContainer from "./components/MainDocumentContainer";
+import MainDocumentContainer from "./components/ScannerPage";
 import Sidebar, { SidebarItem } from "./components/Sidebar";
 import { ScrollText, Database, LineChart, Settings } from "lucide-react";
-import { uploadUrlContext } from "./contexts/Context";
+import { useState } from "react";
+import PopupModal from './components/PopupModal';
+import { BrowserRouter as Router, Routes, Route, NavLink, Navigate } from 'react-router-dom';
+import SettingsPage from "./components/SettingsPage";
+
 
 function App() {
+  const [showPopup, setShowPopup] = useState(false);
+  const [activeItem, setActiveItem] = useState('scanner');
+
+  const handleToggleAuto = () => {
+    setShowPopup(!showPopup);
+  };
+
+
   return (
-    <>
-      <uploadUrlContext.Provider value="http://localhost:8000/api/upload/">
-        <main className="flex h-[96vh] space-x-4 p-6">
+    <Router>
+      
+     
+        <main className={`flex h-[96vh] w-screen space-x-4 p-6 transition-opacity duration-400 ease-in-out ${showPopup ? 'opacity-30' : 'opacity-100'}`}>
           <Sidebar>
+          <NavLink to="/scanner" >
             <SidebarItem
               icon={<ScrollText size={20} />}
               text="Scanner"
-              active={true}
-              alert={undefined}
+              active={activeItem === 'scanner'}
+              onClick={() => setActiveItem('scanner')}
             />
+            </NavLink>
             <SidebarItem
               icon={<Database size={20} />}
               text="Database"
@@ -28,18 +43,27 @@ function App() {
               active={undefined}
               alert={undefined}
             />
-            <SidebarItem
+              <NavLink to="/settings" ><SidebarItem
               icon={<Settings size={20} />}
               text="Settings"
-              active={undefined}
-              alert={undefined}
-            />
+              active={activeItem === 'settings'}
+              onClick={() => setActiveItem('settings')}
+            /></NavLink>
+            
           </Sidebar>
+          <Routes>
+          <Route path="/" element={<Navigate to="/scanner" />} />
+            <Route path="/scanner" element={<MainDocumentContainer onToggleAuto={handleToggleAuto}/>} />
+            <Route path="/database" element={<div>Database Page</div>} />
+            <Route path="/analytics" element={<div>Analytics Page</div>} />
+            <Route path="/settings" element={<SettingsPage />} />
+          </Routes>
 
-          <MainDocumentContainer />
+          
         </main>
-      </uploadUrlContext.Provider>
-    </>
+        {showPopup && <PopupModal onClose={() => setShowPopup(false)} />}
+     
+    </Router>
   );
 }
 

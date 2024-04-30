@@ -1,44 +1,77 @@
 import React, { useEffect, useState } from "react";
 import InnerNavbar from "./InnerNavbar";
 import InnerContainer from "./InnerContainer";
-import { PDFDetail } from "../services/fileTypes";
-import { getProcessedInfo } from "../services/apiServices";
 import ImageDisplay from "./Document";
 import PageData from "./PageData";
 import SaveButton from "./SaveButton";
+import { PDFDetail, ProcessedPagesResponse } from "../services/fileTypes";
+import { mergeScanResultsIntoPDFDetail } from "../services/merge";
 
 interface OutputCardProps {
   selectedPDF: PDFDetail | null;
   selectedPageIds: number[];
+  scanResults: ProcessedPagesResponse | null;
+  scanStatus: boolean;
 }
 
-const OutputCard = ({ selectedPDF, selectedPageIds }: OutputCardProps) => {
-  const [processedData, setProcessedData] =
-    useState<ProcessedPagesResponse | null>(null);
+const OutputCard = ({
+  selectedPDF,
+  selectedPageIds,
+  scanResults,
+  scanStatus
+}: OutputCardProps) => {
+  const [processedData, setProcessedData] = useState<PDFDetail | null>(null);
+  const [allEdits, setAllEdits] = useState<{ [key: number]: any }>({});
 
-  const handleSavePageData = (pageId: number, jsonOutput: any) => {
-    console.log("Saving page data for Page ID:", pageId, "Data:", jsonOutput);
+  // Update processedData anytime the selectedPDF changes
+  useEffect(() => {
+    setProcessedData(selectedPDF); // Always reflect the currently selected PDF
+  }, [selectedPDF]);
+
+  // Apply scan results to processedData only when scanResults update
+  useEffect(() => {
+    if (scanResults && selectedPDF) {
+      const updatedPDFDetail = mergeScanResultsIntoPDFDetail(
+        selectedPDF,
+        scanResults
+      );
+      console.log("Updated PDF Detail with scan results:", updatedPDFDetail);
+      setProcessedData(updatedPDFDetail);
+    }
+  }, [scanResults]); // Only react to changes in scanResults
+
+  const handleEdit = (edits: { [key: number]: any }) => {
+    setAllEdits(edits);
   };
 
-  console.log("Page Ids", selectedPageIds);
+  const handleSaveAllPages = () => {
+    console.log("Button clicked to save all pages.", allEdits);
+  };
 
   return (
     <div className="flex flex-col bg-gray rounded-xl p-6">
       <h1>Output</h1>
       <div className="flex justify-between items-center">
-        <InnerNavbar navItems={["Editor"]} />
-        <SaveButton />
+      <InnerNavbar
+  navItems={["Editor"]}
+  onEditorClick={() => console.log('Editor clicked')}
+  activeView="editor"
+  disableEditor={!processedData || selectedPageIds.length === 0} // Disable "Editor" if no processed data or no pages are selected
+/>
+        <SaveButton onSave={handleSaveAllPages} />
       </div>
 
       <InnerContainer>
-        {selectedPDF ? (
+        {processedData ? (
           selectedPageIds.length > 0 ? (
             <>
               <PageData
-                pages={selectedPDF.pages.filter((page) =>
+                pages={processedData.pages.filter((page) =>
                   selectedPageIds.includes(page.id)
                 )}
-                onSave={handleSavePageData}
+                onSave={handleSaveAllPages}
+                onEdit={handleEdit}
+                scanStatus={scanStatus}
               />
               <ImageDisplay imagePath="Test_page_1_thumbnail.png" />
             </>

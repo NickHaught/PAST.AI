@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import InputLoader from "./InputLoader";
+import Loader from "./Loader";
 import { IoMdCloudUpload } from "react-icons/io"; // Import the icon
 
 interface Props {
@@ -12,7 +12,7 @@ const InnerContainer = ({ children, loading }: Props) => {
     <div className="w-full h-full rounded-xl overflow-hidden bg-light-gray relative flex items-center justify-center">
       {loading ? (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-200 bg-opacity-50 z-10">
-          <InputLoader />
+          <Loader />
           <div className="ml-2 text-white">Uploading...</div>
         </div>
       ) : children ? (

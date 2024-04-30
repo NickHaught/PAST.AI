@@ -57,17 +57,21 @@ export default function Sidebar({ children }: SidebarProps) {
   );
 }
 
+interface SidebarItemProps {
+  icon: React.ReactNode; // Use React.ReactNode for more accurate typing of React elements
+  text: string;
+  active: boolean; // It's better to explicitly type this as boolean if it's used as such
+  alert?: boolean; // Optional prop should be typed appropriately
+  onClick: () => void; // Function that does not take any arguments and returns nothing
+}
+
 export function SidebarItem({
   icon,
   text,
   active,
   alert,
-}: {
-  icon: any;
-  text: any;
-  active: any;
-  alert: any;
-}) {
+  onClick,
+}: SidebarItemProps) {
   const { expanded } = useContext(SidebarContext);
 
   return (
@@ -77,13 +81,16 @@ export function SidebarItem({
         font-medium rounded-md cursor-pointer
         transition-colors group 
         ${
-          active ? " bg-light-gray text-blue" : "hover:bg-light-gray text-off-white"
+          active
+            ? " bg-light-gray text-blue"
+            : "hover:bg-light-gray text-off-white"
         }
     `}
+      onClick={onClick}
     >
       {icon}
       <span
-        className={`overflow-hidden transition-all ${
+        className={`overflow-hidden  ${
           expanded ? " w-52 ml-3" : "w-0"
         }`}
       >
@@ -104,7 +111,7 @@ export function SidebarItem({
           bg-indigo-100 text-indigo-800 text-sm
           invisible opacity-20 -translate-x-3 transition-all
           group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
-      `}
+      `} 
         >
           {text}
         </div>

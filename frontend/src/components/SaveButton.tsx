@@ -3,26 +3,18 @@ import { FaRegSave } from "react-icons/fa";
 
 interface Props {
   className?: string;
+  onSave: () => void;  // Function to execute on save
 }
 
-const SaveButton = ({ className }: Props) => {
-  const handleButtonClick = async () => {
-    console.log("Save Button Clicked");
-    try {
-      const response = await test_pdf();
-      console.log("Test PDF response:", response);
-    } catch (error) {
-      console.error("Error testing PDF:", error);
-    }
-  };
-
+const SaveButton = ({ className, onSave }: Props) => {
   return (
     <>
       <button
         className={`text-white flex items-center bg-light-gray space-x-2 text-lg py-1 px-2 rounded-lg hover:border-blue focus:outline-none ${className}`}
-        onClick={handleButtonClick}
+        onClick={onSave}  // Use onSave passed from the parent component
+        title={"Save/Validate Data"}
       >
-        <FaRegSave className="text-green-500"/>
+        <FaRegSave className="text-green-500" />
       </button>
     </>
   );
