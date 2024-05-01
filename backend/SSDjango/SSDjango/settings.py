@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'SSAPP',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -116,6 +117,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 FORMATTERS = (
@@ -180,3 +182,9 @@ LOGGING = {
     "loggers": LOGGERS[0],
 }
 
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'PAST.AI API',
+    'DESCRIPTION': 'This is a PAST.AI official API documentation.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False
+}

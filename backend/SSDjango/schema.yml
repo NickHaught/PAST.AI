@@ -1,0 +1,1094 @@
+openapi: 3.0.3
+info:
+  title: PAST.AI API
+  version: 1.0.0
+  description: This is a PAST.AI official API documentation.
+paths:
+  /api/app_keys/:
+    get:
+      operationId: api_app_keys_list
+      description: Returns all existing AppKey entries.
+      summary: Get all AppKey entries
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - AppKeys
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAppKeysList'
+          description: ''
+    post:
+      operationId: api_app_keys_create
+      description: Posts a new AppKey with an OpenAI API key and a credentials file.
+      summary: Create a new AppKey entry
+      tags:
+      - AppKeys
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                openai_api_key:
+                  type: string
+                  description: OpenAI API Key
+                  required: true
+                cred_file:
+                  type: string
+                  format: binary
+                  description: Credential file
+                  required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppKeys'
+          description: ''
+  /api/app_keys/{id}/:
+    get:
+      operationId: api_app_keys_retrieve
+      description: Returns a single AppKey entry by its ID.
+      summary: Retrieve an AppKey entry
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this app keys.
+        required: true
+      tags:
+      - AppKeys
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppKeys'
+          description: ''
+    put:
+      operationId: api_app_keys_update
+      description: Updates an existing AppKey with an OpenAI API key and/or a credentials
+        file.
+      summary: Update an existing AppKey entry
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this app keys.
+        required: true
+      tags:
+      - AppKeys
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                openai_api_key:
+                  type: string
+                  description: OpenAI API Key
+                  required: false
+                cred_file:
+                  type: string
+                  format: binary
+                  description: Credential file
+                  required: false
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppKeys'
+          description: ''
+    patch:
+      operationId: api_app_keys_partial_update
+      description: Partially updates an existing AppKey with an OpenAI API key and/or
+        a credentials file.
+      summary: Partial update of an existing AppKey entry
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this app keys.
+        required: true
+      tags:
+      - AppKeys
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                openai_api_key:
+                  type: string
+                  description: OpenAI API Key
+                  required: false
+                cred_file:
+                  type: string
+                  format: binary
+                  description: Credential file
+                  required: false
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppKeys'
+          description: ''
+    delete:
+      operationId: api_app_keys_destroy
+      description: Deletes all existing AppKey entries.
+      summary: Delete all AppKey entries
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this app keys.
+        required: true
+      tags:
+      - AppKeys
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/pages/:
+    get:
+      operationId: api_pages_list
+      description: Retrieves PDF pages based on scan status.
+      summary: Retrieve PDF pages
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: scanned
+        schema:
+          type: string
+          enum:
+          - '0'
+          - '1'
+          - 'false'
+          - 'true'
+        description: Filter pages by scanned status
+      tags:
+      - PDFPages
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPDFPageList'
+          description: ''
+    post:
+      operationId: api_pages_create
+      description: Uploads a PDF page and processes it to extract text and metadata.
+      summary: Upload PDF page
+      tags:
+      - PDFPages
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PDFPage'
+          description: ''
+  /api/pages/{id}/:
+    get:
+      operationId: api_pages_retrieve
+      description: Retrieves a single PDF page by its ID.
+      summary: Retrieve PDF page
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this pdf page.
+        required: true
+      tags:
+      - PDFPages
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PDFPage'
+          description: ''
+    delete:
+      operationId: api_pages_destroy
+      description: Deletes a PDF page along with its metadata.
+      summary: Delete a PDF page
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this pdf page.
+        required: true
+      tags:
+      - PDFPages
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/pages/auto_scan/:
+    post:
+      operationId: api_pages_auto_scan_create
+      description: Initiates a process that automatically scans all unscanned PDF
+        pages.
+      summary: Start automatic scanning
+      tags:
+      - PDFPages
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutoScanResponse'
+          description: ''
+  /api/pages/process_pages/:
+    post:
+      operationId: api_pages_process_pages_create
+      description: Processes a list of PDF page IDs, updating their scanned status
+        and other metadata.
+      summary: Process specified pages
+      tags:
+      - PDFPages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PageIDsRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PageIDsRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PageIDsRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessedPagesResponse'
+          description: ''
+  /api/pages/process_pages_dummy/:
+    post:
+      operationId: api_pages_process_pages_dummy_create
+      description: Dummy endpoint for processing PDF pages. Returns static or randomly
+        generated data.
+      summary: Process specified pages (dummy)
+      tags:
+      - PDFPages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DummyPageIDsRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DummyPageIDsRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DummyPageIDsRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DummyProcessedPagesResponse'
+          description: ''
+  /api/pages/stop_scanning/:
+    post:
+      operationId: api_pages_stop_scanning_create
+      description: Stops the ongoing scanning process immediately.
+      summary: Stop scanning process
+      tags:
+      - PDFPages
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StopScanningResponse'
+          description: ''
+  /api/pdfs/:
+    get:
+      operationId: api_pdfs_list
+      description: Retrieves all PDF files along with their pages and metadata.
+      summary: Retrieve all PDF files
+      parameters:
+      - in: query
+        name: all_pages_scanned
+        schema:
+          type: boolean
+        description: Filter files by scanned status of all pages
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - PDFFiles
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPDFFileList'
+          description: ''
+    post:
+      operationId: api_pdfs_create
+      description: Uploads one or more PDF files and processes them to extract individual
+        pages.
+      summary: Upload PDF file(s)
+      tags:
+      - PDFFiles
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                    description: PDF file(s) to upload
+                  required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PDFFile'
+          description: ''
+  /api/pdfs/{id}/:
+    get:
+      operationId: api_pdfs_retrieve
+      description: Retrieves a PDF file along with its pages and their respective
+        metadata.
+      summary: Retrieve PDF file
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this pdf file.
+        required: true
+      - in: query
+        name: only_scanned
+        schema:
+          type: boolean
+        description: Only return scanned pages
+      tags:
+      - PDFFiles
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PDFFile'
+          description: ''
+    delete:
+      operationId: api_pdfs_destroy
+      description: Deletes a PDF file along with its associated pages and metadata.
+      summary: Delete a PDF file
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this pdf file.
+        required: true
+      tags:
+      - PDFFiles
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/pdfs/delete_high_res_images/:
+    delete:
+      operationId: api_pdfs_delete_high_res_images_destroy
+      description: Deletes all high-resolution images associated with the PDF file.
+      summary: Delete high-resolution images
+      tags:
+      - PDFFiles
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/settings/:
+    get:
+      operationId: api_settings_list
+      description: Returns all existing Settings entries.
+      summary: Get all Settings entries
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Settings
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSettingsList'
+          description: ''
+    post:
+      operationId: api_settings_create
+      description: Posts a new Settings entry with a key and a value.
+      summary: Create a new Settings entry
+      tags:
+      - Settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Settings'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Settings'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Settings'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+          description: ''
+  /api/settings/{id}/:
+    get:
+      operationId: api_settings_retrieve
+      description: Returns a single Settings entry by its ID.
+      summary: Retrieve a Settings entry
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this settings.
+        required: true
+      tags:
+      - Settings
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+          description: ''
+    put:
+      operationId: api_settings_update
+      description: Updates an existing Settings entry with a key and/or a value.
+      summary: Update an existing Settings entry
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this settings.
+        required: true
+      tags:
+      - Settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Settings'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Settings'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Settings'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+          description: ''
+    patch:
+      operationId: api_settings_partial_update
+      description: Partially updates an existing Settings entry with a key and/or
+        a value.
+      summary: Partial update of an existing Settings entry
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this settings.
+        required: true
+      tags:
+      - Settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSettings'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSettings'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSettings'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+          description: ''
+    delete:
+      operationId: api_settings_destroy
+      description: Deletes all existing Settings entries.
+      summary: Delete all Settings entries
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this settings.
+        required: true
+      tags:
+      - Settings
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    AppKeys:
+      type: object
+      properties:
+        openai_api_key:
+          type: string
+        cred_file:
+          type: string
+          format: uri
+      required:
+      - cred_file
+      - openai_api_key
+    AutoScanResponse:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+      - status
+    DummyPageIDsRequest:
+      type: object
+      properties:
+        page_ids:
+          type: array
+          items:
+            type: integer
+          description: List of page IDs to process
+      required:
+      - page_ids
+    DummyProcessedPage:
+      type: object
+      properties:
+        page_id:
+          type: integer
+        json_output: {}
+        gpt_cost:
+          type: number
+          format: double
+        documentAI_cost:
+          type: number
+          format: double
+        processing_time:
+          type: number
+          format: double
+        scanned:
+          type: boolean
+      required:
+      - documentAI_cost
+      - gpt_cost
+      - json_output
+      - page_id
+      - processing_time
+      - scanned
+    DummyProcessedPagesResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        processed_pages:
+          $ref: '#/components/schemas/DummyProcessedPage'
+      required:
+      - processed_pages
+      - status
+    PDFFile:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        file:
+          type: string
+          format: uri
+          writeOnly: true
+        pages:
+          type: array
+          items:
+            $ref: '#/components/schemas/PDFPage'
+          readOnly: true
+      required:
+      - file
+      - id
+      - name
+      - pages
+    PDFPage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        page_number:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        file:
+          type: string
+          format: uri
+        thumbnail:
+          type: string
+          format: uri
+          nullable: true
+        high_res_image:
+          type: string
+          format: uri
+          nullable: true
+        scanned:
+          type: boolean
+        cost:
+          type: number
+          format: double
+        processing_time:
+          type: string
+          readOnly: true
+        json_output:
+          type: string
+          readOnly: true
+        gpt_cost:
+          type: string
+          readOnly: true
+        documentAI_cost:
+          type: string
+          readOnly: true
+      required:
+      - documentAI_cost
+      - file
+      - gpt_cost
+      - id
+      - json_output
+      - page_number
+      - processing_time
+    PageIDsRequest:
+      type: object
+      properties:
+        page_ids:
+          type: array
+          items:
+            type: integer
+          description: List of page IDs to process
+      required:
+      - page_ids
+    PaginatedAppKeysList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppKeys'
+    PaginatedPDFFileList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PDFFile'
+    PaginatedPDFPageList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PDFPage'
+    PaginatedSettingsList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Settings'
+    PatchedSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        compute_style_info:
+          type: boolean
+        enable_native_pdf_parsing:
+          type: boolean
+        enable_image_quality_scores:
+          type: boolean
+        enable_symbol:
+          type: boolean
+        location:
+          type: string
+          maxLength: 32
+        project_id:
+          type: string
+          maxLength: 64
+        processor_id:
+          type: string
+          maxLength: 64
+        processor_version:
+          type: string
+          maxLength: 64
+        mime_type:
+          type: string
+          maxLength: 64
+        color_filter:
+          type: boolean
+        color_similarity_threshold:
+          type: number
+          format: double
+        handwritten_filter:
+          type: boolean
+        unicode_filter:
+          type: boolean
+        confidence_filter:
+          type: number
+          format: double
+        font_size_filter:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        gpt_max_tokens:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        gpt_model:
+          type: string
+          maxLength: 64
+        gpt_messages: {}
+    ProcessedPage:
+      type: object
+      properties:
+        page_id:
+          type: integer
+        json_output: {}
+        gpt_cost:
+          type: number
+          format: double
+        documentAI_cost:
+          type: number
+          format: double
+        processing_time:
+          type: number
+          format: double
+        scanned:
+          type: boolean
+      required:
+      - documentAI_cost
+      - gpt_cost
+      - json_output
+      - page_id
+      - processing_time
+      - scanned
+    ProcessedPagesResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        processed_pages:
+          $ref: '#/components/schemas/ProcessedPage'
+      required:
+      - processed_pages
+      - status
+    Settings:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        compute_style_info:
+          type: boolean
+        enable_native_pdf_parsing:
+          type: boolean
+        enable_image_quality_scores:
+          type: boolean
+        enable_symbol:
+          type: boolean
+        location:
+          type: string
+          maxLength: 32
+        project_id:
+          type: string
+          maxLength: 64
+        processor_id:
+          type: string
+          maxLength: 64
+        processor_version:
+          type: string
+          maxLength: 64
+        mime_type:
+          type: string
+          maxLength: 64
+        color_filter:
+          type: boolean
+        color_similarity_threshold:
+          type: number
+          format: double
+        handwritten_filter:
+          type: boolean
+        unicode_filter:
+          type: boolean
+        confidence_filter:
+          type: number
+          format: double
+        font_size_filter:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        gpt_max_tokens:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        gpt_model:
+          type: string
+          maxLength: 64
+        gpt_messages: {}
+      required:
+      - id
+      - mime_type
+      - processor_id
+      - processor_version
+      - project_id
+    StopScanningResponse:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+      - status
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

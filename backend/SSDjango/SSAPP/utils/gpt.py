@@ -211,11 +211,17 @@ def gpt_token_processing(page_id: int):
 
 
     documentAI_text = generate_text(page_id)
+
+    print(documentAI_text)
+
     instructions1 = settings["gpt_instructions"][0]
     instructions2 = settings["gpt_instructions"][1]
 
 
     message_content, cost = process_gpt(documentAI_text, instructions1, "text", settings["gpt_max_tokens"], settings["gpt_model"])
+
+    print('----------------------------------------------------------------------')
+    print(message_content)
 
     json_output, cost2 = process_gpt(message_content, instructions2, "json_object", settings["gpt_max_tokens"], settings["gpt_model"])
     json_output_dict = json.loads(json_output)
