@@ -44,6 +44,9 @@ class PDFFileSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 class AppKeysSerializer(serializers.ModelSerializer):
+    openai_api_key = serializers.CharField()
+    cred_file = serializers.FileField()
+    
     class Meta:
         model = AppKeys
         fields = ['openai_api_key', 'cred_file']

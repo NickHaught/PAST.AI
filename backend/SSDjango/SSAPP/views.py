@@ -1,6 +1,6 @@
 # views.py
 
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, serializers
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.decorators import action, api_view
@@ -16,25 +16,23 @@ import random
 from django.conf import settings
 from functools import wraps
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample, OpenApiTypes, inline_serializer
 
 
 logger = logging.getLogger("django")
 
-class PostOnlyModelViewSet(viewsets.ModelViewSet):
-    def list(self, request, *args, **kwargs):
-        return Response({"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+class AllowedMethodsMixin:
+    """
+    A mixin that provides a method to set allowed methods for a viewset.
+    """
+    allowed_methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS', 'TRACE']
 
-    def retrieve(self, request, *args, **kwargs):
-        return Response({"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def update(self, request, *args, **kwargs):
-        return Response({"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def partial_update(self, request, *args, **kwargs):
-        return Response({"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def destroy(self, request, *args, **kwargs):
-        return Response({"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    def check_permissions(self, request):
+        if request.method not in self.allowed_methods:
+            self.permission_denied(
+                request, message=f'Method "{request.method}" not allowed.'
+            )
+        super().check_permissions(request)
 
 def assign_method_with_name(original_method, new_method):
     @wraps(original_method)
@@ -60,6 +58,8 @@ class CustomPagination(PageNumberPagination):
     
 
 class PDFFileViewSet(viewsets.ModelViewSet):
+    allowed_methods = ['GET', 'POST','DELETE']
+
     queryset = PDFFile.objects.all()
     serializer_class = PDFFileSerializer
     pagination_class = CustomPagination
@@ -79,6 +79,68 @@ class PDFFileViewSet(viewsets.ModelViewSet):
 
         return queryset
 
+    # Exclude 'put' and 'patch' methods from the schema
+    @extend_schema(
+        methods=['PUT'],
+        exclude=True
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @extend_schema(
+        methods=['PATCH'],
+        exclude=True
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    @extend_schema(
+        methods=['DELETE'],
+        summary="Delete a PDF file",
+        description="Deletes a PDF file along with its associated pages and metadata.",
+        responses={204: None},
+        tags=['PDFFiles']
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
+    @extend_schema(
+        methods=['GET'],
+        summary="Retrieve all PDF files",
+        description="Retrieves all PDF files along with their pages and metadata.",
+        parameters=[
+            OpenApiParameter(name='all_pages_scanned', type=OpenApiTypes.BOOL, location=OpenApiParameter.QUERY, description='Filter files by scanned status of all pages'),
+        ],
+        responses={200: PDFFileSerializer(many=True)},
+        tags=['PDFFiles']
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(
+        methods=['POST'],
+        summary="Upload PDF file(s)",
+        description="Uploads one or more PDF files and processes them to extract individual pages.",
+        request={
+            'multipart/form-data': {
+                'type': 'object',
+                'properties': {
+                    'file': {
+                        'type': 'array',
+                        'items': {
+                            'type': 'string',
+                            'format': 'binary',
+                            'description': 'PDF file(s) to upload',
+                        },
+                        'required': True,
+                    }
+
+                }
+            }
+        },
+        responses={200: PDFFileSerializer},
+        tags=['PDFFiles']
+    )
     def create(self, request, *args, **kwargs):
         files = request.FILES.getlist('file')
         if not files:
@@ -121,6 +183,16 @@ class PDFFileViewSet(viewsets.ModelViewSet):
 
         return Response(responses, status=status.HTTP_201_CREATED)
 
+    @extend_schema(
+        methods=['GET'],
+        summary="Retrieve PDF file",
+        description="Retrieves a PDF file along with its pages and their respective metadata.",
+        parameters=[
+            OpenApiParameter(name='only_scanned', type=OpenApiTypes.BOOL, location=OpenApiParameter.QUERY, description='Only return scanned pages'),
+        ],
+        responses={200: PDFFileSerializer},
+        tags=['PDFFiles']
+    )
     def retrieve(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
@@ -164,6 +236,13 @@ class PDFFileViewSet(viewsets.ModelViewSet):
             logger.error(f"An error occurred while retrieving PDF file: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @extend_schema(
+        methods=['DELETE'],
+        summary="Delete high-resolution images",
+        description="Deletes all high-resolution images associated with the PDF file.",
+        responses={204: None},
+        tags=['PDFFiles']
+    )
     @action(detail=False, methods=['delete'])
     def delete_high_res_images(self, request):
         try:
@@ -182,6 +261,8 @@ class PDFFileViewSet(viewsets.ModelViewSet):
 
 
 class PDFPageViewSet(viewsets.ModelViewSet):
+    allowed_methods = ['GET', 'POST', 'DELETE']
+
     queryset = PDFPage.objects.all()
     serializer_class = PDFPageSerializer
     pagination_class = CustomPagination
@@ -197,6 +278,80 @@ class PDFPageViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(scanned=scanned)
         return queryset
     
+    # Exclude 'put' and 'patch' methods from the schema
+    @extend_schema(
+        methods=['PUT'],
+        exclude=True
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @extend_schema(
+        methods=['PATCH'],
+        exclude=True
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    @extend_schema(
+        methods=['GET'],
+        summary="Retrieve PDF pages",
+        description="Retrieves PDF pages based on scan status.",
+        parameters=[
+            OpenApiParameter(name='scanned', description='Filter pages by scanned status', required=False, type=OpenApiTypes.STR, enum=['true', '1', 'false', '0'])
+        ],
+        responses={200: PDFPageSerializer(many=True)},  # Ensure 'many=True' is set for list responses
+        tags=['PDFPages']
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @extend_schema(
+        methods=['GET'],
+        summary="Retrieve PDF page",
+        description="Retrieves a single PDF page by its ID.",
+        responses={200: PDFPageSerializer},
+        tags=['PDFPages']
+    )
+    def retrieve(self, request, *args, **pk):
+        return super().retrieve(request, *args, **pk)
+    
+    @extend_schema(
+        methods=['DELETE'],
+        summary="Delete a PDF page",
+        description="Deletes a PDF page along with its metadata.",
+        responses={204: None},
+        tags=['PDFPages']
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+    
+    @extend_schema(
+        methods=['POST'],
+        summary="Upload PDF page",
+        description="Uploads a PDF page and processes it to extract text and metadata.",
+        request={},
+        responses={200: PDFPageSerializer},
+        tags=['PDFPages']
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @extend_schema(
+        methods=['POST'],
+        summary="Start automatic scanning",
+        description="Initiates a process that automatically scans all unscanned PDF pages.",
+        request={},
+        responses={
+            200: inline_serializer(
+                name='AutoScanResponse',
+                fields={
+                    'status': serializers.CharField(),
+                }
+            )
+        },
+        tags=['PDFPages']
+    )
     @action(detail=False, methods=["post"])
     def auto_scan(self, request, *args, **kwargs):
         """
@@ -219,6 +374,21 @@ class PDFPageViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
     
+    @extend_schema(
+        methods=['POST'],
+        summary="Stop scanning process",
+        description="Stops the ongoing scanning process immediately.",
+        request={},
+        responses={
+            200: inline_serializer(
+                name='StopScanningResponse',
+                fields={
+                    'status': serializers.CharField(),
+                }
+            )
+        },
+        tags=['PDFPages']
+    )
     @action(detail=False, methods=["post"])
     def stop_scanning(self, request, *args, **kwargs):
         """
@@ -269,6 +439,41 @@ class PDFPageViewSet(viewsets.ModelViewSet):
 
         return response
 
+    @extend_schema(
+        methods=['POST'],
+        summary="Process specified pages",
+        description="Processes a list of PDF page IDs, updating their scanned status and other metadata.",
+        request=inline_serializer(
+            name='PageIDsRequest',
+            fields={
+                'page_ids': serializers.ListField(
+                    child=serializers.IntegerField(),
+                    help_text='List of page IDs to process'
+                )
+            }
+        ),
+        responses={
+            200: inline_serializer(
+                name='ProcessedPagesResponse',
+                fields={
+                    'status': serializers.CharField(),
+                    'processed_pages': inline_serializer(
+                        name='ProcessedPage',
+                        fields={
+                            'page_id': serializers.IntegerField(),
+                            'json_output': serializers.JSONField(),
+                            'gpt_cost': serializers.FloatField(),
+                            'documentAI_cost': serializers.FloatField(),
+                            'processing_time': serializers.FloatField(),
+                            'scanned': serializers.BooleanField()
+                        }
+                    )
+                },
+                help_text='Detailed response for each processed page'
+            ),
+        },
+        tags=['PDFPages']
+    )
     @action(detail=False, methods=["post"])
     def process_pages(self, request, *args, **kwargs):
         """
@@ -320,6 +525,41 @@ class PDFPageViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
     
+    @extend_schema(
+        methods=['POST'],
+        summary="Process specified pages (dummy)",
+        description="Dummy endpoint for processing PDF pages. Returns static or randomly generated data.",
+        request=inline_serializer(
+            name='DummyPageIDsRequest',
+            fields={
+                'page_ids': serializers.ListField(
+                    child=serializers.IntegerField(),
+                    help_text='List of page IDs to process'
+                )
+            }
+        ),
+        responses={
+            200: inline_serializer(
+                name='DummyProcessedPagesResponse',
+                fields={
+                    'status': serializers.CharField(),
+                    'processed_pages': inline_serializer(
+                        name='DummyProcessedPage',
+                        fields={
+                            'page_id': serializers.IntegerField(),
+                            'json_output': serializers.JSONField(),
+                            'gpt_cost': serializers.FloatField(),
+                            'documentAI_cost': serializers.FloatField(),
+                            'processing_time': serializers.FloatField(),
+                            'scanned': serializers.BooleanField()
+                        }
+                    )
+                },
+                help_text='Detailed response for each processed page'
+            ),
+        },
+        tags=['PDFPages']
+    )
     @action(detail=False, methods=["post"])
     def process_pages_dummy(self, request, *args, **kwargs):
         """
@@ -394,11 +634,190 @@ if settings.DUMMY_MODE:
     PDFPageViewSet.process_pages = assign_method_with_name(PDFPageViewSet.process_pages, PDFPageViewSet.process_pages_dummy)
 
 
-class AppKeysViewSet(viewsets.ModelViewSet):
+class AppKeysViewSet(AllowedMethodsMixin, viewsets.ModelViewSet):
+    allowed_methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+
     queryset = AppKeys.objects.all()
     serializer_class = AppKeysSerializer
 
+    @extend_schema(
+        methods=['GET'],
+        responses={200: AppKeysSerializer},
+        summary='Get all AppKey entries',
+        description='Returns all existing AppKey entries.',
+        tags=['AppKeys']
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @extend_schema(
+        methods=['GET'],
+        responses={200: AppKeysSerializer},
+        summary='Retrieve an AppKey entry',
+        description='Returns a single AppKey entry by its ID.',
+        tags=['AppKeys']
+    )
+    def retrieve(self, request, *args, **pk):
+        """ Retrieve a specific AppKey by ID. """
+        return super().retrieve(request, *args, **pk)
 
-class SettingsViewSet(viewsets.ModelViewSet):
+    @extend_schema(
+        methods=['POST'],
+        request={
+            'multipart/form-data': {
+                'type': 'object',
+                'properties': {
+                    'openai_api_key': {
+                        'type': 'string',
+                        'description': 'OpenAI API Key',
+                        'required': True
+                    },
+                    'cred_file': {
+                        'type': 'string',
+                        'format': 'binary',  # Important for files
+                        'description': 'Credential file',
+                        'required': True
+                    }
+                }
+            }
+        },
+        responses={201: AppKeysSerializer},
+        summary='Create a new AppKey entry',
+        description='Posts a new AppKey with an OpenAI API key and a credentials file.',
+        tags=['AppKeys']
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @extend_schema(
+        methods=['PUT'],
+        request={
+            'multipart/form-data': {
+                'type': 'object',
+                'properties': {
+                    'openai_api_key': {
+                        'type': 'string',
+                        'description': 'OpenAI API Key',
+                        'required': False
+                    },
+                    'cred_file': {
+                        'type': 'string',
+                        'format': 'binary',  # Important for files
+                        'description': 'Credential file',
+                        'required': False
+                    }
+                }
+            }
+        },
+        responses={200: AppKeysSerializer},
+        summary='Update an existing AppKey entry',
+        description='Updates an existing AppKey with an OpenAI API key and/or a credentials file.',
+        tags=['AppKeys']
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @extend_schema(
+        methods=['PATCH'],
+        request={
+            'multipart/form-data': {
+                'type': 'object',
+                'properties': {
+                    'openai_api_key': {
+                        'type': 'string',
+                        'description': 'OpenAI API Key',
+                        'required': False
+                    },
+                    'cred_file': {
+                        'type': 'string',
+                        'format': 'binary',  # Important for files
+                        'description': 'Credential file',
+                        'required': False
+                    }
+                }
+            }
+        },
+        responses={200: AppKeysSerializer},
+        summary='Partial update of an existing AppKey entry',
+        description='Partially updates an existing AppKey with an OpenAI API key and/or a credentials file.',
+        tags=['AppKeys']
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    @extend_schema(
+        methods=['DELETE'],
+        responses={204: None},
+        summary='Delete all AppKey entries',
+        description='Deletes all existing AppKey entries.',
+        tags=['AppKeys']
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+
+    
+class SettingsViewSet(AllowedMethodsMixin, viewsets.ModelViewSet):
+    allowed_methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+
     queryset = Settings.objects.all()
     serializer_class = SettingsSerializer
+
+    @extend_schema(
+        methods=['GET'],
+        responses={200: SettingsSerializer},
+        summary='Get all Settings entries',
+        description='Returns all existing Settings entries.',
+        tags=['Settings']
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+    @extend_schema(
+        methods=['GET'],
+        responses={200: SettingsSerializer},
+        summary='Retrieve a Settings entry',
+        description='Returns a single Settings entry by its ID.',
+        tags=['Settings']
+    )
+    def retrieve(self, request, *args, **pk):
+        return super().retrieve(request, *args, **pk)
+    
+    @extend_schema(
+        methods=['POST'],
+        responses={201: SettingsSerializer},
+        summary='Create a new Settings entry',
+        description='Posts a new Settings entry with a key and a value.',
+        tags=['Settings']
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+    
+    @extend_schema(
+        methods=['PUT'],
+        responses={200: SettingsSerializer},
+        summary='Update an existing Settings entry',
+        description='Updates an existing Settings entry with a key and/or a value.',
+        tags=['Settings']
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+    
+    @extend_schema(
+        methods=['PATCH'],
+        responses={200: SettingsSerializer},
+        summary='Partial update of an existing Settings entry',
+        description='Partially updates an existing Settings entry with a key and/or a value.',
+        tags=['Settings']
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+    
+    @extend_schema(
+        methods=['DELETE'],
+        responses={204: None},
+        summary='Delete all Settings entries',
+        description='Deletes all existing Settings entries.',
+        tags=['Settings']
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
