@@ -52,7 +52,7 @@ function App() {
             
           </Sidebar>
           <Routes>
-          <Route path="/" element={<Navigate to="/scanner" />} />
+          <Route/>
             <Route path="/scanner" element={<MainDocumentContainer onToggleAuto={handleToggleAuto}/>} />
             <Route path="/database" element={<div>Database Page</div>} />
             <Route path="/analytics" element={<div>Analytics Page</div>} />

@@ -118,18 +118,27 @@ const InputCard = ({
 
   const handleScan = async (selectedPages: number[]) => {
     setScanStatus(true);
-    updateScanStatus(true); // Assuming updateScanStatus expects a boolean
+    updateScanStatus(true);
     console.log("(INPUT) Selected pages for scanning:", selectedPages);
 
     // Simulate delay
-    await new Promise((resolve) => setTimeout(resolve, 5000)); // 5000 ms = 5 seconds delay
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // 5000 ms = 5 seconds delay
 
-    const output = await processPages(selectedPages);
-    console.log("PDF details fetched successfully:", output);
-
-    setScanStatus(false);
-    updateScanStatus(false);
-    updateScanResults(output);
+    try {
+      const output = await processPages(selectedPages);
+      console.log("PDF details fetched successfully:", output);
+      setScanStatus(false);
+      updateScanStatus(false);
+      updateScanResults(output);
+    } catch (error) {
+      console.error("Error fetching PDF details:", error);
+      setStatusMessage({
+        type: "error",
+        message: "Failed to fetch PDF details.",
+      });
+      setScanStatus(false);
+      updateScanStatus(false);
+    }
   };
 
   const handlePageSelection = (pageIds: number[]) => {

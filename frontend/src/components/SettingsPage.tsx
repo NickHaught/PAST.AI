@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import InfoTooltip from "./InfoToolTip";
 import StatusMessage from "./StatusMessage";
 import Loader from "./Loader";
+import DynamicInput from "./DynamicInput";
 
 function SettingsPage() {
   const [currentSelection, setCurrentSelection] = useState("Document AI & GPT");
@@ -32,65 +33,170 @@ function SettingsPage() {
     }
   };
 
-  const [formData, setFormData] = useState({
-    aiConfiguration: "Document AI & GPT",
-    costLimit: "",
-    GPTapiKey: "",
-    googleCredentials: "",
-    generalPrompt: "",
-    autoPrompt: "",
-    handWriting: false,
+  interface FormData {
+    gpt_api_key: string;
+    google_credentials: string;
+    compute_style_info: boolean;
+    enable_native_pdf_parsing: boolean;
+    enable_image_quality_scores: boolean;
+    enable_symbol: boolean;
+    location: string;
+    project_id: string;
+    processor_id: string;
+    processor_version: string;
+    mime_type: string;
+    color_filter: boolean;
+    color_similarity_threshold: number;
+    handwritten_filter: boolean;
+    unicode_filter: boolean;
+    confidence_filter: number;
+    font_size_filter: number;
+    gpt_max_tokens: number;
+    gpt_model: string;
+    gpt_general_prompt: string;
+    gpt_auto_prompt: string;
+    ai_config: string;
+    cost_limit: number;
+  }
+
+  const [formData, setFormData] = useState<FormData>({
+    gpt_api_key: "",
+    google_credentials: "",
+    compute_style_info: false,
+    enable_native_pdf_parsing: false,
+    enable_image_quality_scores: false,
+    enable_symbol: false,
+    location: "",
+    project_id: "",
+    processor_id: "",
+    processor_version: "",
+    mime_type: "",
+    color_filter: false,
+    color_similarity_threshold: 0,
+    handwritten_filter: false,
+    unicode_filter: false,
+    confidence_filter: 0,
+    font_size_filter: 0,
+    gpt_max_tokens: 0,
+    gpt_model: "",
+    gpt_general_prompt: "",
+    gpt_auto_prompt: "",
+    ai_config: "",
+    cost_limit: 0,
   });
+
+  interface FieldConfig {
+    label: string;
+    type: string;
+    id?: string;
+    name: keyof FormData;
+    tooltipMessage?: string;
+    inputWidth?: string;
+    step?: string;
+    min?: string;
+  }
+
+  const gpt_fields: FieldConfig[] = [
+    { label: "GPT Max Tokens", name: "gpt_max_tokens", type: "number" },
+    { label: "GPT Model", name: "gpt_model", type: "text" },
+  ];
+
+  const documentAI_major_fields: FieldConfig[] = [
+    { label: "Project ID", name: "project_id", type: "text" },
+    { label: "Processor ID", name: "processor_id", type: "text" },
+    { label: "Processor Version", name: "processor_version", type: "text" },
+    { label: "Location", name: "location", type: "text" },
+  ];
+
+  const documentAI_custom_fields: FieldConfig[] = [
+    { label: "Mime Type", name: "mime_type", type: "text" },
+    {
+      label: "Color Similarity Threshold",
+      name: "color_similarity_threshold",
+      type: "number",
+    },
+    { label: "Confidence Filter", name: "confidence_filter", type: "number" },
+    { label: "Font Size Filter", name: "font_size_filter", type: "number" },
+  ];
+
+  const documentAI_toggle_fields: FieldConfig[] = [
+    {
+      label: "Compute Style Info",
+      name: "compute_style_info",
+      type: "checkbox",
+    },
+    {
+      label: "Enable Native PDF Parsing",
+      name: "enable_native_pdf_parsing",
+      type: "checkbox",
+    },
+    {
+      label: "Enable Image Quality Scores",
+      name: "enable_image_quality_scores",
+      type: "checkbox",
+    },
+    { label: "Enable Symbol", name: "enable_symbol", type: "checkbox" },
+    { label: "Color Filter", name: "color_filter", type: "checkbox" },
+    {
+      label: "Handwritten Filter",
+      name: "handwritten_filter",
+      type: "checkbox",
+    },
+    { label: "Unicode Filter", name: "unicode_filter", type: "checkbox" },
+  ];
 
   useEffect(() => {
     const mockData = {
-      aiConfiguration: "Document AI & GPT", // Simulated fetched value
-      costLimit: 2300, // Example value
-      GPTapiKey: null, // Simulated undefined or null value
-      googleCredentials: "Key=djjdjsdjjsdjsjd",
-      generalPrompt: "This is a general prompt",
-      autoPrompt: "This is an auto prompt",
-      handWriting: true,
+      gpt_api_key: "sample-gpt-api-key",
+      google_credentials: "sample-google-credentials",
+      compute_style_info: true,
+      enable_native_pdf_parsing: true,
+      enable_image_quality_scores: true,
+      enable_symbol: true,
+      location: "USA",
+      project_id: "ss-capstone-project",
+      processor_id: "processor-123",
+      processor_version: "2023-01-version",
+      mime_type: "application/pdf",
+      color_filter: true,
+      color_similarity_threshold: 0,
+      handwritten_filter: false,
+      unicode_filter: true,
+      confidence_filter: 0.85,
+      font_size_filter: 12,
+      gpt_max_tokens: 500,
+      gpt_model: "gpt-3.5",
+      gpt_general_prompt: "Provide a general response based on input.",
+      gpt_auto_prompt: "Automatically generate a prompt.",
+      ai_config: "Document AI & GPT",
+      cost_limit: 100,
     };
 
     // Update state with mock data
-    setFormData({
-      aiConfiguration: mockData.aiConfiguration || "",
-      costLimit: mockData.costLimit.toString() || "",
-      GPTapiKey: mockData.GPTapiKey || "",
-      googleCredentials: mockData.googleCredentials || "",
-      generalPrompt: mockData.generalPrompt || "",
-      autoPrompt: mockData.autoPrompt || "",
-      handWriting: mockData.handWriting,
-    });
-    setCurrentSelection(mockData.aiConfiguration || "Document AI & GPT");
+    setFormData(mockData);
+    setCurrentSelection(mockData.ai_config || "Document AI & GPT");
   }, []);
 
   const handleSelection = (choice: string) => {
     setCurrentSelection(choice);
-    setFormData({ ...formData, aiConfiguration: choice });
+    setFormData({ ...formData, ai_config: choice });
   };
 
   const handleChange = (e: {
     target: { name?: any; value?: any; type?: any; checked?: any };
   }) => {
     const { name, value, type, checked } = e.target;
+    // Check if the value is empty
+    const sanitizedValue =
+      value === "" ? "" : type === "number" ? Number(value) : value;
     setFormData((prevState) => ({
       ...prevState,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === "checkbox" ? checked : sanitizedValue,
     }));
   };
 
-  const inputClass = (value: any) => {
-    return `mt-1 p-2 w-full rounded-lg text-white bg-light-gray shadow-lg focus:ring-2 transition duration-300 ease-in-out ${
-      !value
-        ? "border-red-600 focus:ring-red-600 hover:border-red-600 focus:border-red-600"
-        : "hover:border-blue focus:ring-blue focus:border-blue border-lightest-gray"
-    }`;
-  };
-
   const textAreaClass = (value: any) => {
-    return `mt-1 p-2 w-full rounded-lg resize-none text-white bg-light-gray shadow-lg focus:ring-2 transition duration-300 ease-in-out scrollbar-webkit ${
+    return `mt-1 p-2 w-full rounded-lg resize-none text-white bg-light-gray focus:ring-2 transition duration-300 ease-in-out scrollbar-webkit ${
       !value
         ? "border-red-600 focus:ring-red-600 hover:border-red-600 focus:border-red-600"
         : "hover:border-blue focus:ring-blue focus:border-blue border-lightest-gray"
@@ -128,73 +234,48 @@ function SettingsPage() {
           Manage your account settings and preferences.
         </p>
         <hr className="w-full my-8 h-0.5 bg-lightest-gray mx-auto border-none" />
-        <h2 className="text-lg font-semibold mb-4 text-white">
-          General & Account
-        </h2>
-        <div className="flex justify-start items-end space-x-4">
-          <div>
-            <label
-              htmlFor="costLimit"
-              className="block text-sm font-medium text-white mb-1"
-            >
-              GPT API Key
-              <InfoTooltip
-                link="https://openai.com/blog/openai-api"
-                message="The GPT API key provides authorized access to OpenAI's powerful language models. Use it to query GPT for responses based on your input."
-              />
-            </label>
-            <input
-              type="text"
-              id="GPTapiKey"
-              name="GPTapiKey"
-              className={inputClass(formData.GPTapiKey)}
-              value={formData.GPTapiKey}
-              onChange={handleChange}
+        <h2 className="text-lg font-semibold text-white">General & Account</h2>
+        <div className="flex flex-wrap justify-start items-end">
+          <div className="mr-4 mt-4">
+            <DynamicInput
+              label="GPT API Key"
+              id="gpt_api_key"
+              name="gpt_api_key"
+              value={formData?.gpt_api_key}
+              handleChange={handleChange}
+              tooltipLink="https://openai.com/blog/openai-api"
+              tooltipMessage="The GPT API key provides authorized access to OpenAI's powerful language models. Use it to query GPT for responses based on your input."
             />
           </div>
-          <div>
-            <label
-              htmlFor="costLimit"
-              className="block text-sm font-medium text-white mb-1"
-            >
-              Document AI Credentials
-              <InfoTooltip
-                link="https://cloud.google.com/document-ai/docs/setup"
-                message="Credentials required to authenticate and access Document AI services for enhanced document processing capabilities."
-              />
-            </label>
-            <input
+          <div className="mr-4 mt-4">
+            <DynamicInput
+              label="Document AI Credentials"
               type="text"
-              id="googleCredentials"
-              name="googleCredentials"
-              className={inputClass(formData.googleCredentials)}
-              value={formData.googleCredentials}
-              onChange={handleChange}
+              id="google_credentials"
+              name="google_credentials"
+              value={formData.google_credentials}
+              handleChange={handleChange}
+              tooltipMessage="Credentials required to authenticate and access Document AI services for enhanced document processing capabilities."
             />
           </div>
-          <div>
-            <label
-              htmlFor="costLimit"
-              className="block text-sm font-medium text-white mb-1"
-            >
-              Cost Limit ($)
-              <InfoTooltip message="Set a maximum spending limit to control overall expenses. This limit ensures that your usage does not exceed your budgetary constraints." />
-            </label>
-            <input
+          <div className="mr-4 mt-4">
+            <DynamicInput
+              label="Cost Limit ($)"
               type="number"
-              id="costLimit"
-              name="costLimit"
-              className={`${inputClass(formData.costLimit)} max-w-32`}
-              value={formData.costLimit}
-              onChange={handleChange}
+              id="cost_limit"
+              name="cost_limit"
+              value={formData.cost_limit}
+              handleChange={handleChange}
+              tooltipMessage="Set a maximum spending limit to control overall expenses. This limit ensures that your usage does not exceed your budgetary constraints."
+              inputWidth="max-w-32"
               step="1"
               min="1"
             />
           </div>
-          <div>
+          <div className="mt-4">
             <label
               htmlFor="aiUtility"
-              className="block text-sm font-medium text-white mb-2"
+              className="block text-sm font-medium text-white mb-1"
             >
               AI Configuration
               <InfoTooltip message="Utilize Document AI and GPT's power to extract highly accurate information from scanned documents or, optionally, use only GPT for less accuracy but less cost." />
@@ -243,81 +324,114 @@ function SettingsPage() {
           </div>
         </div>
         <hr className="w-full my-10 h-0.5 bg-lightest-gray mx-auto border-none" />
-        <h2 className="text-lg font-semibold mb-4 text-white">GPT Prompts</h2>
+        <h2 className="text-lg font-semibold mb-4 text-white">
+          GPT Processing
+        </h2>
         <div className="flex w-full justify-start items-end space-x-4">
           <div className="w-1/2">
             <label
-              htmlFor="field1"
-              className="block text-sm font-medium text-white mb-1"
+              htmlFor="gpt_general_prompt"
+              className="block text-sm font-medium text-white"
             >
               General Prompt
             </label>
 
             <textarea
-              id="generalPrompt"
-              name="generalPrompt"
-              className={textAreaClass(formData.generalPrompt)}
-              value={formData.generalPrompt}
+              id="gpt_general_prompt"
+              name="gpt_general_prompt"
+              className={
+                textAreaClass(formData.gpt_general_prompt) + " min-h-28"
+              }
+              value={formData.gpt_general_prompt}
               onChange={handleChange}
             />
           </div>
           <div className="w-1/2">
             <label
-              htmlFor="field1"
-              className="block text-sm font-medium text-white mb-1"
+              htmlFor="gpt_auto_prompt"
+              className="block text-sm font-medium text-white"
             >
               Auto Mode Prompt
             </label>
             <textarea
-              id="autoPrompt"
-              name="autoPrompt"
-              className={textAreaClass(formData.autoPrompt)}
-              value={formData.autoPrompt}
+              id="gpt_auto_prompt"
+              name="gpt_auto_prompt"
+              className={textAreaClass(formData.gpt_auto_prompt) + " min-h-28"}
+              value={formData.gpt_auto_prompt}
               onChange={handleChange}
             />
           </div>
+        </div>
+        <div className="flex flex-wrap justify-start items-end">
+          {gpt_fields.map((field) => (
+            <div key={field.name} className="mr-4 mt-4">
+              {" "}
+              {/* Ensure key is unique and at the top-level element in map */}
+              <DynamicInput
+                label={field.label}
+                name={field.name}
+                type={field.type}
+                value={formData[field.name]}
+                handleChange={handleChange}
+              />
+            </div>
+          ))}
         </div>
         <hr className="w-full my-10 h-0.5 bg-lightest-gray mx-auto border-none" />
         <h2 className="text-lg font-semibold mb-4 text-white">
           Document AI Processing
         </h2>
-        <div className="grid grid-cols-2 gap-4 w-1/2">
-          <div>
-            <div>
-              <label
-                htmlFor="costLimit"
-                className="block text-sm font-medium text-white mb-1"
-              >
-                Token
-              </label>
-              <input
-                type="number"
-                id="costLimit"
-                name="costLimit"
-                className="mt-1 p-2 max-w-32 rounded-lg text-white bg-light-gray border-gray-300 shadow-lg hover:border-blue focus:border-blue focus:ring-2 focus:ring-blue transition duration-300 ease-in-out"
-                value={formData.costLimit}
-                onChange={handleChange}
-                step="1"
-                min="0"
-              />
-            </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+          <div className="justify-start items-end w-3/4">
+            {documentAI_major_fields.map((field) => (
+              <div key={field.name} className="mr-4">
+                {" "}
+                {/* Ensure key is unique and at the top-level element in map */}
+                <DynamicInput
+                  label={field.label}
+                  name={field.name}
+                  type={field.type}
+                  value={formData[field.name]}
+                  handleChange={handleChange}
+                />
+              </div>
+            ))}
           </div>
-          <div>
-            <label
-              htmlFor="hs-xs-switch"
-              className="text-sm text-white ms-3 p-3"
-            >
-              Hand Writing
-            </label>
-            <input
-              type="checkbox"
-              id="hs-xs-switch"
-              name="handWriting"
-              className="relative w-[35px] h-[21px] bg-lightest-gray border-transparent text-transparent rounded-full cursor-pointer transition-colors transition-shadow ease-in-out duration-300 focus:ring-2 focus:ring-gray focus:ring-opacity-0 focus:ring-opacity-50 disabled:opacity-50 disabled:pointer-events-none checked:bg-none checked:text-blue checked:border-gray
-  before:inline-block before:size-4 before:bg-white checked:before:bg-white before:translate-x-0 checked:before:translate-x-full before:rounded-full before:shadow before:transform before:transition before:ease-in-out before:duration-200"
-              checked={formData.handWriting}
-              onChange={handleChange}
-            />
+
+          <div className="justify-start items-end w-3/4">
+            {documentAI_custom_fields.map((field) => (
+              <div key={field.name} className="mr-4">
+                {" "}
+                {/* Ensure key is unique and at the top-level element in map */}
+                <DynamicInput
+                  label={field.label}
+                  name={field.name}
+                  type={field.type}
+                  value={formData[field.name]}
+                  handleChange={handleChange}
+                />
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-wrap justify-start items-end w-1/2 mt-5">
+            {documentAI_toggle_fields.map((field) => (
+              <div key={field.name} className="mr-4 flex items-center">
+                {/* Fixed width for the label */}
+                <label
+                  htmlFor={field.name}
+                  className="w-40 text-sm text-white mr-3"
+                >
+                  {field.label}
+                </label>
+                <DynamicInput
+                  label=""
+                  name={field.name}
+                  type="checkbox"
+                  value={formData[field.name]}
+                  handleChange={handleChange}
+                />
+              </div>
+            ))}
           </div>
         </div>
         {/* Other inputs */}

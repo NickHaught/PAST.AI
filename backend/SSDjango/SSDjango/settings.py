@@ -23,7 +23,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 DEBUG = True
 
 # Flag to enable dummy endpoints for testing
-DUMMY_MODE = True
+DUMMY_MODE = False
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
