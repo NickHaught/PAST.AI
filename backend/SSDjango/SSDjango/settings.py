@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'SSAPP',
     'drf_spectacular',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [

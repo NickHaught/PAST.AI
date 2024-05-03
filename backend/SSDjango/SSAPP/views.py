@@ -821,3 +821,30 @@ class SettingsViewSet(AllowedMethodsMixin, viewsets.ModelViewSet):
     )
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+    
+    @extend_schema(
+        methods=['POST'],
+        responses={200: SettingsSerializer(many=True)},
+        summary='Reset Settings to Defaults',
+        description='Resets all settings to their default values.',
+        tags=['Settings']
+    )
+    @action(detail=False, methods=['post'], url_path='reset_to_defaults')
+    @action(methods=['post'], detail=False)
+    def reset_to_defaults(self, request):
+        try:
+            settings_instance = Settings.objects.first()  # Assuming there is only one settings object
+            if not settings_instance:
+                settings_instance = Settings.objects.create()  # Create if not exists
+
+            # Set each field to its default value
+            for field in settings_instance._meta.fields:
+                default_value = field.get_default()
+                if default_value is not None and hasattr(settings_instance, field.name):
+                    setattr(settings_instance, field.name, default_value)
+            
+            settings_instance.save()
+            serializer = self.get_serializer(settings_instance)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
